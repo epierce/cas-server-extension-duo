@@ -1,7 +1,7 @@
 package edu.ucr.cnc.cas.support.duo.web.flow;
 
 import edu.ucr.cnc.cas.support.duo.CasConstants;
-import edu.ucr.cnc.cas.support.duo.services.ServiceSecondFactorLookupManager;
+import edu.ucr.cnc.cas.support.duo.services.ServiceMultiFactorLookupManager;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.services.RegisteredService;
@@ -31,7 +31,7 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
     private Logger logger = Logger.getLogger(getClass());
 
     @NotNull
-    private ServiceSecondFactorLookupManager serviceSecondFactorLookupManager;
+    private ServiceMultiFactorLookupManager serviceMultiFactorLookupManager;
 
     @NotNull
     private ServicesManager servicesManager;
@@ -59,7 +59,7 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
         // Get the registered service from flow scope
         Service service = (Service)context.getFlowScope().get("service");
         RegisteredService registeredService = this.servicesManager.findServiceBy(service);
-        serviceAuthMechanism = this.serviceSecondFactorLookupManager.getMFARequiredValue(registeredService);
+        serviceAuthMechanism = this.serviceMultiFactorLookupManager.getMFARequiredValue(registeredService);
 
         // Get the LOA of the current TGT
         String tgtLOA = (String)ticketGrantingTicket.getAuthentication().getAttributes().get(CasConstants.LOA_ATTRIBUTE);
@@ -74,17 +74,17 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
         return result("continue");
     }
 
-    public ServiceSecondFactorLookupManager getServiceSecondFactorLookupManager() {
-        return serviceSecondFactorLookupManager;
+    public ServiceMultiFactorLookupManager getServiceMultiFactorLookupManager() {
+        return serviceMultiFactorLookupManager;
     }
 
     /**
-     * Sets the object that should lookup the second factor mechanism used
+     * Sets the object that should lookup the multi factor mechanism used
      *
-     * @param serviceSecondFactorLookupManager a ServiceSecondFactorLookupManager object
+     * @param serviceMultiFactorLookupManager a ServiceMultiFactorLookupManager object
      */
-    public void setServiceSecondFactorLookupManager(ServiceSecondFactorLookupManager serviceSecondFactorLookupManager) {
-        this.serviceSecondFactorLookupManager = serviceSecondFactorLookupManager;
+    public void setServiceMultiFactorLookupManager(ServiceMultiFactorLookupManager serviceMultiFactorLookupManager) {
+        this.serviceMultiFactorLookupManager = serviceMultiFactorLookupManager;
     }
 
     public ServicesManager getServicesManager() {

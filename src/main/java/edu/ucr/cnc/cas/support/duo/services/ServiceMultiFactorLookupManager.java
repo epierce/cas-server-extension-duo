@@ -9,6 +9,6 @@ import org.jasig.cas.services.RegisteredService;
  * @version 1.0
  *
  */
-public interface ServiceSecondFactorLookupManager {
+public interface ServiceMultiFactorLookupManager {
     public String getMFARequiredValue(RegisteredService service);
 }

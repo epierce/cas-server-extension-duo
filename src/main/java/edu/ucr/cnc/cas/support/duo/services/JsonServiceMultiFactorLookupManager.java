@@ -4,7 +4,7 @@ import net.unicon.cas.addons.serviceregistry.RegisteredServiceWithAttributes;
 import org.jasig.cas.services.RegisteredService;
 
 /**
- * An implementation of {@link ServiceSecondFactorLookupManager} that uses attributes in JSON services
+ * An implementation of {@link ServiceMultiFactorLookupManager} that uses attributes in JSON services
  * registry to make the determination.
  *
  * @author Michael Kennedy
@@ -12,25 +12,25 @@ import org.jasig.cas.services.RegisteredService;
  * @see net.unicon.cas.addons.serviceregistry.JsonServiceRegistryDao
  *
  */
-public class JsonServiceSecondFactorLookupManager implements ServiceSecondFactorLookupManager {
+public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLookupManager {
 
-    private String secondFactorAttributeName;
+    private String multiFactorAttributeName;
 
     @Override
     public String getMFARequiredValue(RegisteredService registeredService) {
         if (registeredService instanceof RegisteredServiceWithAttributes) {
             RegisteredServiceWithAttributes registeredServiceWithAttributes = (RegisteredServiceWithAttributes)registeredService;
-            return (String)registeredServiceWithAttributes.getExtraAttributes().get(this.secondFactorAttributeName);
+            return (String)registeredServiceWithAttributes.getExtraAttributes().get(this.multiFactorAttributeName);
         }
 
         return null;
     }
 
     public String getSecondFactorAttributeName() {
-        return secondFactorAttributeName;
+        return multiFactorAttributeName;
     }
 
-    public void setSecondFactorAttributeName(String secondFactorAttributeName) {
-        this.secondFactorAttributeName = secondFactorAttributeName;
+    public void setSecondFactorAttributeName(String multiFactorAttributeName) {
+        this.multiFactorAttributeName = multiFactorAttributeName;
     }
 }

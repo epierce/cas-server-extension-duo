@@ -6,9 +6,9 @@ import org.jasig.cas.authentication.principal.Principal;
  * Object used by Spring action that looks up whether a second factor is required.
  *
  * @author Michael Kennedy
- * @version 1.0
+ * @version 1.1
  *
  */
-public interface UserSecondFactorLookupManager {
+public interface UserMultiFactorLookupManager {
     public String getMFARequiredValue(Principal principal);
 }

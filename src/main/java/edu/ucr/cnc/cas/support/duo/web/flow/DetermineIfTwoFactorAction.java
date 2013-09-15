@@ -1,8 +1,8 @@
 package edu.ucr.cnc.cas.support.duo.web.flow;
 
 import com.timgroup.statsd.NonBlockingStatsDClient;
-import edu.ucr.cnc.cas.support.duo.authentication.principal.UserSecondFactorLookupManager;
-import edu.ucr.cnc.cas.support.duo.services.ServiceSecondFactorLookupManager;
+import edu.ucr.cnc.cas.support.duo.authentication.principal.UserMultiFactorLookupManager;
+import edu.ucr.cnc.cas.support.duo.services.ServiceMultiFactorLookupManager;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.CredentialsToPrincipalResolver;
 import org.jasig.cas.authentication.principal.Principal;
@@ -17,7 +17,7 @@ import org.springframework.webflow.execution.RequestContext;
 import javax.validation.constraints.NotNull;
 
 /**
- * Spring action for determining if a user requires a second authentication factor
+ * Spring action for determining if a user requires multi-factor authentication
  *
  * @author Michael Kennedy
  * @version 1.1
@@ -35,9 +35,9 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
     private CredentialsToPrincipalResolver credentialsToPrincipalResolver;
 
     @NotNull
-    private UserSecondFactorLookupManager userSecondFactorLookupManager;
+    private UserMultiFactorLookupManager userMultiFactorLookupManager;
 
-    private ServiceSecondFactorLookupManager serviceSecondFactorLookupManager;
+    private ServiceMultiFactorLookupManager serviceMultiFactorLookupManager;
     private ServicesManager servicesManager;
 
     private Logger logger = Logger.getLogger(getClass());
@@ -49,7 +49,7 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
     private boolean logToStatsD = false;
 
     /**
-     * Determines whether a second factor is needed. The wiki has more information at
+     * Determines whether multi-factor is needed. The wiki has more information at
      * <a href="https://wiki.ucr.edu/display/CIS/CAS+Multifactor+Required+Matrix>https://wiki.ucr.edu/display/CIS/CAS+Multifactor+Required+Matrix</a> for the rules.
      *
      * @param context
@@ -67,16 +67,16 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
         String serviceMFARequiredValue = null;
 
         // Since it isn't required to require services to assert if they require multi-factor auth, only perform this
-        // if a servicesManager and a serviceSecondFactorLookupManager are specified in twoFactorCasConfiguration.xml
-        if((this.servicesManager != null) && (this.serviceSecondFactorLookupManager != null)) {
+        // if a servicesManager and a ServiceMultiFactorLookupManager are specified in twoFactorCasConfiguration.xml
+        if((this.servicesManager != null) && (this.serviceMultiFactorLookupManager != null)) {
             // Get the registered service from flow scope
             Service service = (Service)context.getFlowScope().get("service");
             RegisteredService registeredService = this.servicesManager.findServiceBy(service);
-            serviceMFARequiredValue = this.serviceSecondFactorLookupManager.getMFARequiredValue(registeredService);
+            serviceMFARequiredValue = this.serviceMultiFactorLookupManager.getMFARequiredValue(registeredService);
         }
 
         // Get whether the user requires MFA
-        String userMFARequiredValue = this.userSecondFactorLookupManager.getMFARequiredValue(principal);
+        String userMFARequiredValue = this.userMultiFactorLookupManager.getMFARequiredValue(principal);
 
         this.logger.debug(credentials.getUsername() + ": userMFARequiredValue = " + userMFARequiredValue + ", serviceMFARequiredValue = " + serviceMFARequiredValue);
 
@@ -113,12 +113,12 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
         this.primaryAuthenticationCredentialsName = primaryAuthenticationCredentialsName;
     }
 
-    public UserSecondFactorLookupManager getUserSecondFactorLookupManager() {
-        return userSecondFactorLookupManager;
+    public UserMultiFactorLookupManager getUserMultiFactorLookupManager() {
+        return userMultiFactorLookupManager;
     }
 
-    public void setUserSecondFactorLookupManager(UserSecondFactorLookupManager userSecondFactorLookupManager) {
-        this.userSecondFactorLookupManager = userSecondFactorLookupManager;
+    public void setUserMultiFactorLookupManager(UserMultiFactorLookupManager userMultiFactorLookupManager) {
+        this.userMultiFactorLookupManager = userMultiFactorLookupManager;
     }
 
     public ServicesManager getServicesManager() {
@@ -137,12 +137,12 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
         this.credentialsToPrincipalResolver = credentialsToPrincipalResolver;
     }
 
-    public ServiceSecondFactorLookupManager getServiceSecondFactorLookupManager() {
-        return serviceSecondFactorLookupManager;
+    public ServiceMultiFactorLookupManager getServiceMultiFactorLookupManager() {
+        return serviceMultiFactorLookupManager;
     }
 
-    public void setServiceSecondFactorLookupManager(ServiceSecondFactorLookupManager serviceSecondFactorLookupManager) {
-        this.serviceSecondFactorLookupManager = serviceSecondFactorLookupManager;
+    public void setServiceMultiFactorLookupManager(ServiceMultiFactorLookupManager serviceMultiFactorLookupManager) {
+        this.serviceMultiFactorLookupManager = serviceMultiFactorLookupManager;
     }
 
     public NonBlockingStatsDClient getStatsDClient() {

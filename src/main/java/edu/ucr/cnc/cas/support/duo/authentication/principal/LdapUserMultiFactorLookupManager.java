@@ -13,18 +13,18 @@ import javax.naming.directory.SearchControls;
 import java.util.List;
 
 /**
- * An implementation of {@link UserSecondFactorLookupManager} that uses attributes in LDAP to make
+ * An implementation of {@link UserMultiFactorLookupManager} that uses attributes in LDAP to make
  * the determination.
  *
  * @author Michael Kennedy
  * @version 1.0
  */
-public class LdapUserSecondFactorLookupManager implements UserSecondFactorLookupManager {
+public class LdapUserMultiFactorLookupManager implements UserMultiFactorLookupManager {
 
     private LdapContextSource contextSource;
     private String filter;
     private String searchBase;
-    private String secondFactorAttributeName;
+    private String multiFactorAttributeName;
 
     private int scope = SearchControls.SUBTREE_SCOPE;
 
@@ -50,7 +50,7 @@ public class LdapUserSecondFactorLookupManager implements UserSecondFactorLookup
                 new AttributesMapper() {
                     public Object mapFromAttributes(final Attributes attrs)
                             throws NamingException {
-                        final Attribute attribute = attrs.get(secondFactorAttributeName);
+                        final Attribute attribute = attrs.get(multiFactorAttributeName);
 
                         if(attribute != null) {
                             return attribute.get();
@@ -89,12 +89,12 @@ public class LdapUserSecondFactorLookupManager implements UserSecondFactorLookup
         this.searchBase = searchBase;
     }
 
-    public String getSecondFactorAttributeName() {
-        return secondFactorAttributeName;
+    public String getMultiFactorAttributeName() {
+        return multiFactorAttributeName;
     }
 
-    public void setSecondFactorAttributeName(String secondFactorAttributeName) {
-        this.secondFactorAttributeName = secondFactorAttributeName;
+    public void setMultiFactorAttributeName(String multiFactorAttributeName) {
+        this.multiFactorAttributeName = multiFactorAttributeName;
     }
     /**
      * Generates the SearchControls for the LDAP query to be executed
@@ -106,7 +106,7 @@ public class LdapUserSecondFactorLookupManager implements UserSecondFactorLookup
         final SearchControls constraints = new SearchControls();
 
         constraints.setSearchScope(this.scope);
-        constraints.setReturningAttributes(new String[]{this.secondFactorAttributeName});
+        constraints.setReturningAttributes(new String[]{this.multiFactorAttributeName});
         constraints.setTimeLimit(this.timeout);
         constraints.setCountLimit(DEFAULT_MAX_NUMBER_OF_RESULTS);
         return constraints;
