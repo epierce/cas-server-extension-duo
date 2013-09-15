@@ -1,5 +1,6 @@
 package edu.ucr.cnc.cas.web.flow;
 
+import com.timgroup.statsd.NonBlockingStatsDClient;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.CredentialsToPrincipalResolver;
 import org.jasig.cas.authentication.principal.Principal;
@@ -17,7 +18,7 @@ import javax.validation.constraints.NotNull;
  * Spring action for determining if a user requires a second authentication factor
  *
  * @author Michael Kennedy
- * @version 1.0
+ * @version 1.1
  *
  */
 public class DetermineIfTwoFactorAction extends AbstractAction {
@@ -38,6 +39,12 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
     private ServicesManager servicesManager;
 
     private Logger logger = Logger.getLogger(getClass());
+
+    /**
+     * Injected in duoConfiguration.xml
+     */
+    private NonBlockingStatsDClient statsDClient;
+    private boolean logToStatsD = false;
 
     /**
      * Determines whether a second factor is needed. The wiki has more information at
@@ -72,22 +79,26 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
         this.logger.debug(credentials.getUsername() + ": userMFARequiredValue = " + userMFARequiredValue + ", serviceMFARequiredValue = " + serviceMFARequiredValue);
 
         if(serviceMFARequiredValue == null) {
+            if(this.logToStatsD)this.statsDClient.incrementCounter(this.NO_MFA_NEEDED);
             this.logger.debug(credentials.getUsername() + " result is " + this.NO_MFA_NEEDED);
             return result(this.NO_MFA_NEEDED);
         }
 
         // If the service requires MFA, it's required for all
         if(serviceMFARequiredValue.equals("YES")) {
+            if(this.logToStatsD)this.statsDClient.incrementCounter(this.MFA_NEEDED);
             this.logger.debug(credentials.getUsername() + " result is " + this.MFA_NEEDED);
             return result(this.MFA_NEEDED);
         }
 
         // If the user requires it and the service is optional, it is required
         if(userMFARequiredValue != null && userMFARequiredValue.equals("YES")) {
+            if(this.logToStatsD)this.statsDClient.incrementCounter(this.MFA_NEEDED);
             this.logger.debug(credentials.getUsername() + " result is " + this.MFA_NEEDED);
             return result(this.MFA_NEEDED);
         }
 
+        if(this.logToStatsD)this.statsDClient.incrementCounter(this.NO_MFA_NEEDED);
         this.logger.debug(credentials.getUsername() + " result is " + this.NO_MFA_NEEDED);
         return result(this.NO_MFA_NEEDED);
     }
@@ -132,4 +143,12 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
         this.serviceSecondFactorLookupManager = serviceSecondFactorLookupManager;
     }
 
+    public NonBlockingStatsDClient getStatsDClient() {
+        return statsDClient;
+    }
+
+    public void setStatsDClient(NonBlockingStatsDClient statsDClient) {
+        this.logToStatsD = true;
+        this.statsDClient = statsDClient;
+    }
 }

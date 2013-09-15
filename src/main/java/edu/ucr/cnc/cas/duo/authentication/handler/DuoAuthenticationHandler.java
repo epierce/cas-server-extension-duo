@@ -1,5 +1,6 @@
 package edu.ucr.cnc.cas.duo.authentication.handler;
 
+import com.timgroup.statsd.NonBlockingStatsDClient;
 import edu.ucr.cnc.cas.duo.config.DuoConfiguration;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.AuthenticationException;
@@ -17,10 +18,16 @@ import javax.validation.constraints.NotNull;
  * perform authentications on {@link DuoCredentials}.
  *
  * @author  Michael Kennedy <michael.kennedy@ucr.edu>
- * @version 1.0
+ * @version 1.1
  *
  */
 public class DuoAuthenticationHandler implements AuthenticationHandler {
+
+    /**
+     * Injected in duoConfiguration.xml
+     */
+    private NonBlockingStatsDClient statsDClient;
+    private boolean logToStatsD = false;
 
     /**
      * This should be injected via Spring in duoConfiguration.xml
@@ -52,8 +59,11 @@ public class DuoAuthenticationHandler implements AuthenticationHandler {
 
         if (!duoVerifyResponse.matches("")) {
             this.logger.debug("successful authentication for " + duoVerifyResponse);
+            if(this.logToStatsD) this.statsDClient.incrementCounter("duosuccess");
             return true;
         }
+
+        if(this.logToStatsD) this.statsDClient.incrementCounter("duofailure");
 
         // TODO: Make sure returned netid is the same as the one in the primary auth
         return false;
@@ -87,5 +97,14 @@ public class DuoAuthenticationHandler implements AuthenticationHandler {
      */
     public void setDuoConfiguration(DuoConfiguration duoConfiguration) {
         this.duoConfiguration = duoConfiguration;
+    }
+
+    public NonBlockingStatsDClient getStatsDClient() {
+        return statsDClient;
+    }
+
+    public void setStatsDClient(NonBlockingStatsDClient statsDClient) {
+        this.statsDClient = statsDClient;
+        this.logToStatsD = true;
     }
 }
