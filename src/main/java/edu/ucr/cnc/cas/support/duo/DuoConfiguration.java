@@ -1,4 +1,4 @@
-package edu.ucr.cnc.cas.duo.config;
+package edu.ucr.cnc.cas.support.duo;
 
 /**
  * Spring bean for holding Duo configuration parameters passed to it in duoConfiguration.xml.

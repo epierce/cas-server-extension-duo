@@ -1,6 +1,7 @@
-package edu.ucr.cnc.cas.support;
+package edu.ucr.cnc.cas.support.duo.authentication;
 
 import org.apache.log4j.Logger;
+import edu.ucr.cnc.cas.support.duo.CasConstants;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.AuthenticationMetaDataPopulator;
 import org.jasig.cas.authentication.MutableAuthentication;

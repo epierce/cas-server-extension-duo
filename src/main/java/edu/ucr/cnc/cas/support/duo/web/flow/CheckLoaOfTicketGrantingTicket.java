@@ -1,6 +1,7 @@
-package edu.ucr.cnc.cas.web.flow;
+package edu.ucr.cnc.cas.support.duo.web.flow;
 
-import edu.ucr.cnc.cas.support.CasConstants;
+import edu.ucr.cnc.cas.support.duo.CasConstants;
+import edu.ucr.cnc.cas.support.duo.services.ServiceSecondFactorLookupManager;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.services.RegisteredService;

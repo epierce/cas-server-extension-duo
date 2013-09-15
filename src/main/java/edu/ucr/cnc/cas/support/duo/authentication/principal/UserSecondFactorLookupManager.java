@@ -1,4 +1,4 @@
-package edu.ucr.cnc.cas.web.flow;
+package edu.ucr.cnc.cas.support.duo.authentication.principal;
 
 import org.jasig.cas.authentication.principal.Principal;
 

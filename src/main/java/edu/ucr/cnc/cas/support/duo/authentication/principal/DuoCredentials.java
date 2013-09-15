@@ -1,4 +1,4 @@
-package edu.ucr.cnc.cas.duo.authentication.principal;
+package edu.ucr.cnc.cas.support.duo.authentication.principal;
 
 import javax.validation.constraints.NotNull;
 import org.jasig.cas.authentication.principal.Credentials;

@@ -1,4 +1,4 @@
-package edu.ucr.cnc.cas.support;
+package edu.ucr.cnc.cas.support.duo;
 
 /**
  * CasConstants defines several String constants that are used by {@link UsernamePasswordAuthenticationMetaDataPopulator} and

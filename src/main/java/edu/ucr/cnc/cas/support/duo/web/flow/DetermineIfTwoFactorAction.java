@@ -1,6 +1,8 @@
-package edu.ucr.cnc.cas.web.flow;
+package edu.ucr.cnc.cas.support.duo.web.flow;
 
 import com.timgroup.statsd.NonBlockingStatsDClient;
+import edu.ucr.cnc.cas.support.duo.authentication.principal.UserSecondFactorLookupManager;
+import edu.ucr.cnc.cas.support.duo.services.ServiceSecondFactorLookupManager;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.CredentialsToPrincipalResolver;
 import org.jasig.cas.authentication.principal.Principal;

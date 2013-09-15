@@ -1,8 +1,8 @@
-package edu.ucr.cnc.cas.duo.authentication.principal;
+package edu.ucr.cnc.cas.support.duo.authentication.principal;
 
 import com.duosecurity.DuoWeb;
 import org.jasig.cas.authentication.principal.Credentials;
-import edu.ucr.cnc.cas.duo.config.DuoConfiguration;
+import edu.ucr.cnc.cas.support.duo.DuoConfiguration;
 import org.jasig.cas.authentication.principal.CredentialsToPrincipalResolver;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.SimplePrincipal;

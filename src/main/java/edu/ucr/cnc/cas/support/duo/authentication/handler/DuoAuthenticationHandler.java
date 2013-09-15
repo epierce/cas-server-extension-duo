@@ -1,13 +1,13 @@
-package edu.ucr.cnc.cas.duo.authentication.handler;
+package edu.ucr.cnc.cas.support.duo.authentication.handler;
 
 import com.timgroup.statsd.NonBlockingStatsDClient;
-import edu.ucr.cnc.cas.duo.config.DuoConfiguration;
+import edu.ucr.cnc.cas.support.duo.DuoConfiguration;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.handler.AuthenticationException;
 import org.jasig.cas.authentication.handler.AuthenticationHandler;
 import org.jasig.cas.authentication.handler.UncategorizedAuthenticationException;
 import org.jasig.cas.authentication.principal.Credentials;
-import edu.ucr.cnc.cas.duo.authentication.principal.DuoCredentials;
+import edu.ucr.cnc.cas.support.duo.authentication.principal.DuoCredentials;
 import com.duosecurity.DuoWeb;
 import javax.validation.constraints.NotNull;
 

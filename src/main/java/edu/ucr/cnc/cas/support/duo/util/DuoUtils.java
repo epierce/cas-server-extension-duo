@@ -1,7 +1,7 @@
-package edu.ucr.cnc.cas.duo.util;
+package edu.ucr.cnc.cas.support.duo.util;
 
 import com.duosecurity.DuoWeb;
-import edu.ucr.cnc.cas.duo.config.DuoConfiguration;
+import edu.ucr.cnc.cas.support.duo.DuoConfiguration;
 import org.apache.log4j.Logger;
 
 /**

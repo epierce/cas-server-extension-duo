@@ -1,4 +1,4 @@
-package edu.ucr.cnc.cas.web.flow;
+package edu.ucr.cnc.cas.support.duo.services;
 
 import net.unicon.cas.addons.serviceregistry.RegisteredServiceWithAttributes;
 import org.jasig.cas.services.RegisteredService;
