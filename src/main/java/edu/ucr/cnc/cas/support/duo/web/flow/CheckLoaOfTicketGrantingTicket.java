@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
  * 2. Determines that the LOA of the TGT is sufficient and continues the login webflow.
  *
  * @author Michael Kennedy <michael.kennedy@ucr.edu>
- * @version 1.0
+ * @version 1.1
  */
 public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
 
@@ -54,12 +54,10 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
             return result("continue");
         }
 
-        String serviceAuthMechanism = null;
-
         // Get the registered service from flow scope
         Service service = (Service)context.getFlowScope().get("service");
         RegisteredService registeredService = this.servicesManager.findServiceBy(service);
-        serviceAuthMechanism = this.serviceMultiFactorLookupManager.getMFARequiredValue(registeredService);
+        boolean serviceMultiFactorRequired = this.serviceMultiFactorLookupManager.getMFARequired(registeredService, ticketGrantingTicket.getAuthentication().getPrincipal().getId());
 
         // Get the LOA of the current TGT
         String tgtLOA = (String)ticketGrantingTicket.getAuthentication().getAttributes().get(CasConstants.LOA_ATTRIBUTE);
@@ -67,7 +65,7 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
         logger.debug("LOA of TGT " + ticketGrantingTicketId + " is set to " + tgtLOA);
 
         // Should the user be required to reauthenticate?
-        if((serviceAuthMechanism != null) && (!tgtLOA.equals(CasConstants.LOA_TF))) {
+        if((serviceMultiFactorRequired) && (!tgtLOA.equals(CasConstants.LOA_TF))) {
             return result("renewForTwoFactor");
         }
 

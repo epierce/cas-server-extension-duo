@@ -6,9 +6,9 @@ import org.jasig.cas.services.RegisteredService;
  * Object used by Spring action that looks up whether a second factor is required.
  *
  * @author Michael Kennedy
- * @version 1.0
+ * @version 1.1
  *
  */
 public interface ServiceMultiFactorLookupManager {
-    public String getMFARequiredValue(RegisteredService service);
+    public boolean getMFARequired(RegisteredService service, String username);
 }

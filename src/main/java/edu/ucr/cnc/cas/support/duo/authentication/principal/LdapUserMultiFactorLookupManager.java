@@ -17,7 +17,7 @@ import java.util.List;
  * the determination.
  *
  * @author Michael Kennedy
- * @version 1.0
+ * @version 1.1
  */
 public class LdapUserMultiFactorLookupManager implements UserMultiFactorLookupManager {
 
@@ -37,10 +37,15 @@ public class LdapUserMultiFactorLookupManager implements UserMultiFactorLookupMa
     /** The default timeout. */
     private static final int DEFAULT_TIMEOUT = 1000;
 
-    @Override
-    public String getMFARequiredValue(Principal principal) {
+    /** The default value to compare to. **/
+    private String multiFactorAttributeValue = "YES";
 
-        String searchFilter = LdapUtils.getFilterWithValues(getFilter(), principal.getId());
+    @Override
+    public boolean getMFARequired(String username) {
+
+        String searchFilter = LdapUtils.getFilterWithValues(getFilter(), username);
+
+        String result = "";
 
         LdapTemplate ldapTemplate = new LdapTemplate(this.contextSource);
 
@@ -56,13 +61,16 @@ public class LdapUserMultiFactorLookupManager implements UserMultiFactorLookupMa
                             return attribute.get();
                         }
 
-                        return null;
+                        return false;
                     }
 
                 }
         );
 
-        return (String)secrets.get(0);
+        result = (String) secrets.get(0);
+
+        return this.multiFactorAttributeValue.equalsIgnoreCase(result);
+
     }
 
     public LdapContextSource getContextSource() {
@@ -95,6 +103,14 @@ public class LdapUserMultiFactorLookupManager implements UserMultiFactorLookupMa
 
     public void setMultiFactorAttributeName(String multiFactorAttributeName) {
         this.multiFactorAttributeName = multiFactorAttributeName;
+    }
+
+    public String getMultiFactorAttributeValue() {
+        return multiFactorAttributeValue;
+    }
+
+    public void setMultiFactorAttributeValue(String multiFactorAttributeValue) {
+        this.multiFactorAttributeValue = multiFactorAttributeValue;
     }
     /**
      * Generates the SearchControls for the LDAP query to be executed
