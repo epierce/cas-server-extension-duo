@@ -27,9 +27,6 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
     final String MFA_NEEDED = "multiFactorNeeded";
 
     @NotNull
-    private String firstAuthenticationCredentialsName;
-
-    @NotNull
     private UserMultiFactorLookupManager userMultiFactorLookupManager;
 
     private ServiceMultiFactorLookupManager serviceMultiFactorLookupManager;
