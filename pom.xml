@@ -50,6 +50,8 @@
   </developers>
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <cas.version>3.5.2</cas.version>
     <cas-addons.version>1.7</cas-addons.version>
     <servlet.version>2.5</servlet.version>
@@ -57,6 +59,7 @@
     <statsd.version>2.0.0</statsd.version>
     <json.version>20090211</json.version>
     <spock.version>0.7-groovy-2.0</spock.version>
+    <ldap-test-utils.version>1.0.1</ldap-test-utils.version>
   </properties>
   
   <dependencies>
@@ -102,6 +105,14 @@
         <artifactId>spock-core</artifactId>
         <version>${spock.version}</version>
         <scope>test</scope>
+    </dependency>
+
+    <!-- In-Memory LDAP server for LdapUserMultiFactorLookupManagerTests -->
+    <dependency>
+      <groupId>com.github.trevershick</groupId>
+      <artifactId>ldap-test-utils</artifactId>
+      <version>${ldap-test-utils.version}</version>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>
