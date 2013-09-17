@@ -48,7 +48,7 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
             logger.debug("Check MultiFactor Required for Service returned: {}", result);
             if (result.equalsIgnoreCase(REQUIRE_NONE)) {  
                 return false;
-            } else if (result.equalsIgnoreCase(REQUIRE_NONE)) {
+            } else if (result.equalsIgnoreCase(REQUIRE_ALL)) {
                 return true;
             } else if (result.equalsIgnoreCase(REQUIRE_CHECK)) {
                 //Compare the username to the list from the service registry
