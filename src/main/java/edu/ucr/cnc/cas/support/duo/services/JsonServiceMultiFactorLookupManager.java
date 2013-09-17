@@ -8,9 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.ArrayList;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 /**
  * An implementation of {@link ServiceMultiFactorLookupManager} that uses an attribute in the JSON service
@@ -45,7 +42,13 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
         if (registeredService instanceof RegisteredServiceWithAttributes) {
             RegisteredServiceWithAttributes registeredServiceWithAttributes = (RegisteredServiceWithAttributes)registeredService;
             String result = (String) registeredServiceWithAttributes.getExtraAttributes().get(this.multiFactorRequiredAttributeName);
-            logger.debug("Check MultiFactor Required for Service returned: {}", result);
+            
+            if(result == null){
+              logger.debug("No MultiFactor requirement found for service {}", registeredServiceWithAttributes.getServiceId());
+              return false;
+            }
+
+            logger.debug("Check MultiFactor requirement for service {} returned: {}", registeredServiceWithAttributes.getServiceId(), result);
             if (result.equalsIgnoreCase(REQUIRE_NONE)) {  
                 return false;
             } else if (result.equalsIgnoreCase(REQUIRE_ALL)) {
@@ -53,10 +56,10 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
             } else if (result.equalsIgnoreCase(REQUIRE_CHECK)) {
                 //Compare the username to the list from the service registry
                 List mfaUsers = getMFARequiredUsers(registeredService);
-                logger.debug("These users must use MFA: {}", mfaUsers.toString());
-                return mfaUsers.contains(username.toLowerCase());
+                logger.debug("MultiFactor required for service {} and users: {}", registeredServiceWithAttributes.getServiceId(), mfaUsers.toString());
+                return mfaUsers.contains(username);
             } else {
-                logger.error("MultiFactor check returned unknown results: {}", result);
+                logger.warn("MultiFactor check for service {} returned unhandled results: {}", registeredServiceWithAttributes.getServiceId(), result);
                 return false;
             }
         }
@@ -67,23 +70,10 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
     public List getMFARequiredUsers(RegisteredService registeredService) {
         if (registeredService instanceof RegisteredServiceWithAttributes) {
             RegisteredServiceWithAttributes registeredServiceWithAttributes = (RegisteredServiceWithAttributes)registeredService;
-            try {
-              return toList( (JSONArray)registeredServiceWithAttributes.getExtraAttributes().get(this.multiFactorRequiredUserListAttributeName));
-            } catch (JSONException e) {
-              logger.error("Could not parse value in {}!", this.multiFactorRequiredUserListAttributeName);
-              logger.debug(e.toString());
-            }
+            return (List) registeredServiceWithAttributes.getExtraAttributes().get(this.multiFactorRequiredUserListAttributeName);
         }
 
         return null;
-    }
-
-    private List toList(JSONArray array) throws JSONException {
-        List list = new ArrayList();
-        for (int i = 0; i < array.length(); i++) {
-          list.add(array.get(i).toString());
-        }
-        return list;
     }
 
     public String getMultiFactorRequiredAttributeName() {
