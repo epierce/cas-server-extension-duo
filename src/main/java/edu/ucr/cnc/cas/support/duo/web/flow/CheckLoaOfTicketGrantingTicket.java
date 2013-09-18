@@ -7,7 +7,6 @@ import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.ticket.TicketGrantingTicketImpl;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
@@ -45,8 +44,8 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
 
         // Get the TGT id from the flow scope and retrieve the actual TGT from the ticket registry
         String ticketGrantingTicketId = (String)context.getFlowScope().get("ticketGrantingTicketId");
-        TicketGrantingTicketImpl ticketGrantingTicket;
-        ticketGrantingTicket = (TicketGrantingTicketImpl)this.ticketRegistry.getTicket(ticketGrantingTicketId, TicketGrantingTicket.class);
+        TicketGrantingTicket ticketGrantingTicket;
+        ticketGrantingTicket = (TicketGrantingTicket) this.ticketRegistry.getTicket(ticketGrantingTicketId, TicketGrantingTicket.class);
 
         // If there isn't a matching TGT in the registry let the user continue
         if (ticketGrantingTicket == null) {
@@ -61,6 +60,11 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
 
         // Get the LOA of the current TGT
         String tgtLOA = (String)ticketGrantingTicket.getAuthentication().getAttributes().get(CasConstants.LOA_ATTRIBUTE);
+
+        //Assume tickets without LOA are single-factor
+        if (tgtLOA == null){
+          tgtLOA = CasConstants.LOA_SF;
+        }
 
         logger.debug("LOA of TGT " + ticketGrantingTicketId + " is set to " + tgtLOA);
 
