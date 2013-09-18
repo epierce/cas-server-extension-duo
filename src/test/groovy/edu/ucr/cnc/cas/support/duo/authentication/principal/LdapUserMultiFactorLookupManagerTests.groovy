@@ -42,6 +42,18 @@ import org.springframework.ldap.core.support.LdapContextSource
           @LdapAttribute(name="sn",value="User3"),
           @LdapAttribute(name="uid",value="testUser3")
         ]
+      ),
+      @LdapEntry(
+        dn='uid=testUser4,dc=example,dc=edu',
+        objectclass=['top','person','inetorgperson'],
+        attributes=[
+          @LdapAttribute(name="cn",value="Test User4"),
+          @LdapAttribute(name="sn",value="User4"),
+          @LdapAttribute(name="uid",value="testUser4"),
+          //Use employeeType to store the MFA requirement so we don't have to create a custom attribute 
+          //Use a custom value
+          @LdapAttribute(name="employeeType",value="Use_MFA")
+        ]
       )  
     ]
 )
@@ -146,5 +158,37 @@ class LdapUserMultiFactorLookupManagerTests extends Specification {
 
       then:
         result == false
+    }
+
+    def "Login with a user that requires MFA - alternate value"(){
+      given:
+        def username = 'testUser4'
+        def searchFilter = '(uid=%u)'
+        def multiFactorAttributeName = 'employeeType'
+        def multiFactorAttributeValue = 'Use_MFA'
+        def bindDn = 'uid=admin'
+        def bindPassword = 'password'
+        def ldapUrl = 'ldap://localhost:11111'
+        def searchBase = 'dc=example,dc=edu'
+
+        //Create the Ldap connection
+        def source = new LdapContextSource()
+        source.userDn = bindDn
+        source.password = bindPassword
+        source.url = ldapUrl
+        source.afterPropertiesSet()
+
+      when:
+        def lookupManager = new LdapUserMultiFactorLookupManager()
+        lookupManager.contextSource = source
+        lookupManager.filter = searchFilter
+        lookupManager.searchBase = searchBase
+        lookupManager.multiFactorAttributeName = multiFactorAttributeName
+        lookupManager.multiFactorAttributeValue = multiFactorAttributeValue
+
+        def result = lookupManager.getMFARequired(username)
+
+      then:
+        result == true
     }
 }

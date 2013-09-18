@@ -24,7 +24,6 @@ public class LdapUserMultiFactorLookupManager implements UserMultiFactorLookupMa
     private LdapContextSource contextSource;
     private String filter;
     private String searchBase;
-    private String multiFactorAttributeName;
 
     private int scope = SearchControls.SUBTREE_SCOPE;
 
@@ -38,6 +37,7 @@ public class LdapUserMultiFactorLookupManager implements UserMultiFactorLookupMa
     private static final int DEFAULT_TIMEOUT = 1000;
 
     /** The default value to compare to. **/
+    private String multiFactorAttributeName = "casMFARequired";
     private String multiFactorAttributeValue = "YES";
 
     @Override
@@ -49,25 +49,25 @@ public class LdapUserMultiFactorLookupManager implements UserMultiFactorLookupMa
 
         LdapTemplate ldapTemplate = new LdapTemplate(this.contextSource);
 
-        List secrets = ldapTemplate.search(
-                getSearchBase(), searchFilter, getSearchControls(),
+        AttributesMapper attributesMapper = new AttributesMapper() {
+        public Object mapFromAttributes(final Attributes attrs)
+          throws NamingException {
+            final Attribute attribute = attrs.get(multiFactorAttributeName);
 
-                new AttributesMapper() {
-                    public Object mapFromAttributes(final Attributes attrs)
-                            throws NamingException {
-                        final Attribute attribute = attrs.get(multiFactorAttributeName);
+            if(attribute != null) {
+              return attribute.get();
+            }
+            return false;
+          }
+        };
 
-                        if(attribute != null) {
-                            return attribute.get();
-                        }
+        List secrets = ldapTemplate.search(getSearchBase(), searchFilter, getSearchControls(), attributesMapper);
 
-                        return false;
-                    }
-
-                }
-        );
-
-        result = (String) secrets.get(0);
+        if (secrets.get(0).equals(false)) {
+          result = "No Result";
+        } else {
+          result = (String) secrets.get(0);
+        }
 
         return this.multiFactorAttributeValue.equalsIgnoreCase(result);
 
@@ -112,6 +112,7 @@ public class LdapUserMultiFactorLookupManager implements UserMultiFactorLookupMa
     public void setMultiFactorAttributeValue(String multiFactorAttributeValue) {
         this.multiFactorAttributeValue = multiFactorAttributeValue;
     }
+
     /**
      * Generates the SearchControls for the LDAP query to be executed
      *
