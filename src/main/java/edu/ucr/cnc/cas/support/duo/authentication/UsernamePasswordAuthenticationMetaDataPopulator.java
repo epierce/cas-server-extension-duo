@@ -33,7 +33,7 @@ public class UsernamePasswordAuthenticationMetaDataPopulator implements Authenti
 
         // Only do anything if the credential being provided is of type UsernamePasswordCredentials
         if (credentials instanceof UsernamePasswordCredentials) {
-            Principal simplePrincipal = new SimplePrincipal(authentication.getPrincipal().getId());
+            Principal simplePrincipal = new SimplePrincipal(authentication.getPrincipal().getId(), authentication.getPrincipal().getAttributes());
             MutableAuthentication mutableAuthentication = new MutableAuthentication(simplePrincipal, authentication.getAuthenticatedDate());
 
             mutableAuthentication.getAttributes().putAll(authentication.getAttributes());
