@@ -1,15 +1,18 @@
-package edu.ucr.cnc.cas.support.duo.authentication.handler;
+package edu.usf.cims.cas.support.duo.authentication.handler;
 
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import edu.ucr.cnc.cas.support.duo.DuoConfiguration;
-import org.apache.log4j.Logger;
+
 import org.jasig.cas.authentication.handler.AuthenticationException;
 import org.jasig.cas.authentication.handler.AuthenticationHandler;
 import org.jasig.cas.authentication.handler.UncategorizedAuthenticationException;
 import org.jasig.cas.authentication.principal.Credentials;
-import edu.ucr.cnc.cas.support.duo.authentication.principal.DuoCredentials;
+import edu.usf.cims.cas.support.duo.authentication.principal.DuoCredentials;
 import com.duosecurity.DuoWeb;
 import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DuoAuthenticationHandler
@@ -17,11 +20,14 @@ import javax.validation.constraints.NotNull;
  * Bean that implements AuthenticationHandler that can be added to deployerConfigContext.xml to
  * perform authentications on {@link DuoCredentials}.
  *
+ * @author  Eric Pierce <epierce@usf.edu>
  * @author  Michael Kennedy <michael.kennedy@ucr.edu>
  * @version 1.1
  *
  */
 public class DuoAuthenticationHandler implements AuthenticationHandler {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DuoAuthenticationHandler.class);
 
     /**
      * Injected in duoConfiguration.xml
@@ -34,8 +40,6 @@ public class DuoAuthenticationHandler implements AuthenticationHandler {
      */
     @NotNull
     private DuoConfiguration duoConfiguration;
-
-    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * Returns a boolean indicating whether an authentication using a {@link DuoCredentials} credential
@@ -57,16 +61,28 @@ public class DuoAuthenticationHandler implements AuthenticationHandler {
                 this.duoConfiguration.getApplicationKey(),
                 duoCredentials.getSignedDuoResponse());
 
-        if (!duoVerifyResponse.matches("")) {
-            this.logger.debug("successful authentication for " + duoVerifyResponse);
-            if(this.logToStatsD) this.statsDClient.incrementCounter("duosuccess");
-            return true;
+        //Make sure verifyResponse doesn't return null
+        if(duoVerifyResponse == null){
+          duoVerifyResponse = "";
         }
 
-        if(this.logToStatsD) this.statsDClient.incrementCounter("duofailure");
+        LOGGER.debug("Response from Duo verify: [{}]", duoVerifyResponse);
 
-        // TODO: Make sure returned netid is the same as the one in the primary auth
-        return false;
+        if(duoVerifyResponse.equals(duoCredentials.getPrincipal().getId())){
+          if(this.logToStatsD) this.statsDClient.incrementCounter("duosuccess");
+          LOGGER.info("Successful Duo authentication for [{}]", duoCredentials.getPrincipal().getId());
+          return true;
+        } else if(duoVerifyResponse.equals("")){
+          if(this.logToStatsD) this.statsDClient.incrementCounter("duofailure");
+          LOGGER.warn("Duo authentication failed for [{}]", duoCredentials.getPrincipal().getId());
+          return false;
+        } else {
+          if(this.logToStatsD) this.statsDClient.incrementCounter("duofailure");
+          LOGGER.error("Duo authentication error! Login username: [{}], Duo response: [{}]", 
+                        duoCredentials.getPrincipal().getId(),
+                        duoVerifyResponse);
+          return false;
+        }
     }
 
     /**
