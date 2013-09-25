@@ -2,36 +2,75 @@ package edu.usf.cims.cas.support.duo.authentication.principal
 
 import spock.lang.Specification
 import com.duosecurity.*
-import edu.ucr.cnc.cas.support.duo.DuoConfiguration
+import org.jasig.cas.authentication.principal.Principal
+import org.jasig.cas.authentication.Authentication
+import org.jasig.cas.authentication.principal.UsernamePasswordCredentials
 import edu.usf.cims.cas.support.duo.authentication.principal.DuoCredentials
 import edu.usf.cims.cas.support.duo.authentication.principal.DuoCredentialsToPrincipalResolver
-import edu.ucr.cnc.cas.support.duo.CasConstants
-
 
 class DuoCredentialsToPrincipalResolverTests extends Specification {
 
+  /**
+  * Mock objects that will be used in all tests
+  */
+  def principal = Mock(Principal)
+  def authentication = Mock(Authentication)
+
   def "Get principal from DuoCredentials"(){
     given:
-
-      def IKEY = "DIXXXXXXXXXXXXXXXXXX"
-      def SKEY = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
-      def AKEY = "useacustomerprovidedapplicationsecretkey"
-      def USER = "testuser"
-      def RESPONSE = "AUTH|dGVzdHVzZXJ8RElYWFhYWFhYWFhYWFhYWFhYWFh8MTYxNTcyNzI0Mw==|d20ad0d1e62d84b00a3e74ec201a5917e77b6aef"
-
-      def credentials = new DuoCredentials()
-      def request_sig = DuoWeb.signRequest(IKEY, SKEY, AKEY, USER)
-      def sigs = request_sig.split(":")
-      credentials.signedDuoResponse = RESPONSE + ":" + sigs[1] 
-
-      def configuration = new DuoConfiguration('myHost', IKEY, SKEY, AKEY)
+      authentication.principal >> principal
+      principal.id  >> "testUser"
+      
+      def duoCredentials = new DuoCredentials()
+      duoCredentials.setFirstAuthentication(authentication)
       def c2p = new DuoCredentialsToPrincipalResolver()
-      c2p.setDuoConfiguration(configuration)
 
     when:
-      def principal = c2p.resolvePrincipal(credentials)
+      def principal = c2p.resolvePrincipal(duoCredentials)
 
     then:
-      principal.getId() == USER
+      principal.getId() == "testUser"
+  }
+
+  def "Get principal with attributes"(){
+    given:
+      authentication.principal >> principal
+      principal.id  >> "testUser"
+      principal.attributes >> [foo: "bar", yes: "no"]
+     
+      def duoCredentials = new DuoCredentials()
+      duoCredentials.setFirstAuthentication(authentication)
+      def c2p = new DuoCredentialsToPrincipalResolver()
+
+    when:
+      def principal = c2p.resolvePrincipal(duoCredentials)
+
+    then:
+      principal.getId() == "testUser"
+      principal.getAttributes() == [foo: "bar", yes: "no"]
+  }
+
+  def "Support DuoCredentials"(){
+    given:
+      def duoCredentials = new DuoCredentials()
+      def c2p = new DuoCredentialsToPrincipalResolver()
+
+    when:
+      def result = c2p.supports(duoCredentials)
+
+    then:
+      result == true
+  }
+
+  def "Support ONLY DuoCredentials"(){
+    given:
+      def upCredentials = new UsernamePasswordCredentials()
+      def c2p = new DuoCredentialsToPrincipalResolver()
+
+    when:
+      def result = c2p.supports(upCredentials)
+
+    then:
+      result == false
   }
 }

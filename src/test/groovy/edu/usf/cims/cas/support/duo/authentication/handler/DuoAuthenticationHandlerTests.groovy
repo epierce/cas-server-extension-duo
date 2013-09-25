@@ -105,4 +105,28 @@ class DuoAuthenticationHandlerTests extends Specification {
     then:
       authResult == false
   }
+
+  def "Support DuoCredentials"(){
+    given:
+      def duoCredentials = new DuoCredentials()
+      def ah = new DuoAuthenticationHandler()
+
+    when:
+      def results = ah.supports(duoCredentials);
+
+    then:
+      results == true;
+  }
+
+  def "Support only DuoCredentials"(){
+    given:
+      def duoCredentials = new UsernamePasswordCredentials()
+      def ah = new DuoAuthenticationHandler()
+
+    when:
+      def results = ah.supports(duoCredentials);
+
+    then:
+      results == false;
+  }
 }
