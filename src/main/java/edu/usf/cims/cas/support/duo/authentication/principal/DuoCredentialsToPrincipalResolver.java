@@ -1,4 +1,4 @@
-package edu.ucr.cnc.cas.support.duo.authentication.principal;
+package edu.usf.cims.cas.support.duo.authentication.principal;
 
 import com.duosecurity.DuoWeb;
 import org.jasig.cas.authentication.principal.Credentials;
@@ -12,10 +12,12 @@ import javax.validation.constraints.NotNull;
  * DuoCredentialsToPrincipalResolver is responsible for converting a {@link DuoCredentials} to
  * a CAS {@link Principal}. This is used by the authentication process after an authentication succeeds.
  *
- * This uses the same Duo web service to verify the Duo signed response and get a username.
+ * This creates a new {@link SimplePrincipal} and copies all of the attribute data from the {@link Principal} used 
+ * during the initial authentication.
  *
+ * @author Eric Pierce <epierce@usf.edu>
  * @author Michael Kennedy <michael.kennedy@ucr.edu>
- * @version 1.0
+ * @version 1.1
  */
 public class DuoCredentialsToPrincipalResolver implements CredentialsToPrincipalResolver {
 
@@ -35,15 +37,9 @@ public class DuoCredentialsToPrincipalResolver implements CredentialsToPrincipal
     public Principal resolvePrincipal(Credentials credentials) {
         final DuoCredentials duoCredentials = (DuoCredentials)credentials;
 
-        // Do an out of band request using the DuoWeb api to the hosted duo service, if it is successful
-        // it will return a String containing the username of the successfully authenticated user, but will
-        // return a blank String otherwise.
-        String duoVerifyResponse = DuoWeb.verifyResponse(this.duoConfiguration.getIntegrationKey(),
-                this.duoConfiguration.getSecretKey(),
-                this.duoConfiguration.getApplicationKey(),
-                duoCredentials.getSignedDuoResponse());
-
-        SimplePrincipal simplePrincipal = new SimplePrincipal(duoVerifyResponse);
+        SimplePrincipal simplePrincipal = new SimplePrincipal(
+              duoCredentials.getPrincipal().getId(),
+              duoCredentials.getPrincipal().getAttributes());
 
         return simplePrincipal;
     }

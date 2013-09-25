@@ -1,11 +1,10 @@
-package edu.ucr.cnc.cas.support.duo.authentication.principal
+package edu.usf.cims.cas.support.duo.authentication.principal
 
 import spock.lang.Specification
 import com.duosecurity.*
-import org.jasig.cas.authentication.principal.SimplePrincipal
 import edu.ucr.cnc.cas.support.duo.DuoConfiguration
-import edu.ucr.cnc.cas.support.duo.authentication.principal.DuoCredentials
-import edu.ucr.cnc.cas.support.duo.authentication.principal.DuoCredentialsToPrincipalResolver
+import edu.usf.cims.cas.support.duo.authentication.principal.DuoCredentials
+import edu.usf.cims.cas.support.duo.authentication.principal.DuoCredentialsToPrincipalResolver
 import edu.ucr.cnc.cas.support.duo.CasConstants
 
 
@@ -33,6 +32,6 @@ class DuoCredentialsToPrincipalResolverTests extends Specification {
       def principal = c2p.resolvePrincipal(credentials)
 
     then:
-      principal.toString() == USER
+      principal.getId() == USER
   }
 }
