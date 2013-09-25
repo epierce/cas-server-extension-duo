@@ -5,6 +5,7 @@ import net.unicon.cas.addons.serviceregistry.RegisteredServiceWithAttributesImpl
 import org.jasig.cas.authentication.principal.WebApplicationService
 import org.jasig.cas.services.ServicesManager
 import org.jasig.cas.ticket.registry.TicketRegistry
+import org.jasig.cas.ticket.TicketGrantingTicket
 import org.jasig.cas.authentication.principal.Principal
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
 import org.jasig.cas.authentication.Authentication
@@ -20,7 +21,9 @@ class GenerateDuoCredentialsActionTests extends Specification {
    */
   def sfa_principal = Mock(Principal)
   def sfa_authentication = Mock(Authentication)
+  def sfa_tgt = Mock(TicketGrantingTicket)
   def requestContext = Mock(RequestContext)
+  def ticketRegistry = Mock(TicketRegistry)
   
   /**
   * configure mocked objects
@@ -34,16 +37,24 @@ class GenerateDuoCredentialsActionTests extends Specification {
     def credentials = new UsernamePasswordCredentials()
     credentials.username = "testUser"
 
+    ticketRegistry.getTicket('test-tgt-sfa', TicketGrantingTicket) >> sfa_tgt
+    sfa_tgt.authentication >> sfa_authentication
+    sfa_authentication.principal >> sfa_principal
+    sfa_principal.id  >> "testUser"
+    sfa_authentication.attributes >> [(CasConstants.LOA_ATTRIBUTE): CasConstants.LOA_SF]
+
     //Configure the mocked web request
-    requestContext.getFlowScope() >> new LocalAttributeMap([credentials: credentials, casAuthentication: sfa_authentication])
+    requestContext.getFlowScope() >> new LocalAttributeMap([credentials: credentials, ticketGrantingTicketId: 'test-tgt-sfa'])
 
   }
 
   def "Create a new DuoCredential"(){
     given:
       def action = new GenerateDuoCredentialsAction()
+      action.ticketRegistry = ticketRegistry
     when:
-      def result = action.createDuoCredentials(requestContext)
+      action.createDuoCredentials(requestContext)
+      def result = requestContext.flowScope.duoCredentials
 
     then:
       result instanceof DuoCredentials

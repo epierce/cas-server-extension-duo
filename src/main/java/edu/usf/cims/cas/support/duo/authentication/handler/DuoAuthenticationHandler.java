@@ -81,6 +81,8 @@ public class DuoAuthenticationHandler implements AuthenticationHandler {
           LOGGER.error("Duo authentication error! Login username: [{}], Duo response: [{}]", 
                         duoCredentials.getPrincipal().getId(),
                         duoVerifyResponse);
+
+          LOGGER.debug("first Principal: [{}]", duoCredentials.getPrincipal());
           return false;
         }
     }

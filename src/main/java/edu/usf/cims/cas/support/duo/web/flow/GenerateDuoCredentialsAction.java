@@ -4,6 +4,8 @@ import javax.validation.constraints.NotNull;
 
 import edu.usf.cims.cas.support.duo.authentication.principal.DuoCredentials;
 import org.apache.commons.lang.StringUtils;
+import org.jasig.cas.ticket.TicketGrantingTicket;
+import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.principal.Credentials;
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
@@ -13,22 +15,38 @@ import org.springframework.webflow.execution.RequestContext;
 
 public final class GenerateDuoCredentialsAction {
 
+    @NotNull
+    private TicketRegistry ticketRegistry;  
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateDuoCredentialsAction.class);
 
-    public Credentials createDuoCredentials(RequestContext context) {
+    public String createDuoCredentials(RequestContext context) {
 
         UsernamePasswordCredentials origCredentials = (UsernamePasswordCredentials) context.getFlowScope().get("credentials");
-        Authentication authentication = (Authentication) context.getFlowScope().get("casAuthentication");
+        
+        // Get the TGT id from the flow scope and retrieve the actual TGT from the ticket registry
+        String ticketGrantingTicketId = (String)context.getFlowScope().get("ticketGrantingTicketId");
+        TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) this.ticketRegistry.getTicket(ticketGrantingTicketId, TicketGrantingTicket.class);
 
         LOGGER.debug("Retrieved authentication context. Building Duo credentials...");
         DuoCredentials credentials = new DuoCredentials();
 
-        LOGGER.debug("Adding first authentication to the DuoCredential");
-        credentials.setFirstAuthentication(authentication);
+        credentials.setFirstAuthentication(ticketGrantingTicket.getAuthentication());
+        LOGGER.debug("Added first authentication [{}] to the DuoCredential", ticketGrantingTicket.getAuthentication());
 
-        LOGGER.debug("Adding first credential to the DuoCredential");
         credentials.setFirstCredentials(origCredentials);
+        LOGGER.debug("Added first credential [{}] to the DuoCredential", origCredentials);
 
-        return credentials;
+        context.getFlowScope().put("duoCredentials", credentials);
+
+        return "created";
+    }
+
+    public TicketRegistry getTicketRegistry() {
+        return ticketRegistry;
+    }
+
+    public void setTicketRegistry(TicketRegistry ticketRegistry) {
+        this.ticketRegistry = ticketRegistry;
     }
 }
