@@ -21,11 +21,7 @@ import javax.validation.constraints.NotNull;
  */
 public class DuoCredentialsToPrincipalResolver implements CredentialsToPrincipalResolver {
 
-    /**
-     * This should be injected via Spring in duoConfiguration.xml
-     */
-    @NotNull
-    private DuoConfiguration duoConfiguration;
+    SimplePrincipal simplePrincipal;
 
     /**
      * Returns a {@link Principal} based on a {@link DuoCredentials} credential.
@@ -37,9 +33,12 @@ public class DuoCredentialsToPrincipalResolver implements CredentialsToPrincipal
     public Principal resolvePrincipal(Credentials credentials) {
         final DuoCredentials duoCredentials = (DuoCredentials)credentials;
 
-        SimplePrincipal simplePrincipal = new SimplePrincipal(
-              duoCredentials.getPrincipal().getId(),
-              duoCredentials.getPrincipal().getAttributes());
+        if (duoCredentials.getPrincipal().getAttributes() != null) {
+          simplePrincipal = new SimplePrincipal(duoCredentials.getPrincipal().getId(),
+                duoCredentials.getPrincipal().getAttributes());
+        } else {
+          simplePrincipal = new SimplePrincipal(duoCredentials.getPrincipal().getId());
+        }
 
         return simplePrincipal;
     }
@@ -54,23 +53,5 @@ public class DuoCredentialsToPrincipalResolver implements CredentialsToPrincipal
     @Override
     public boolean supports(Credentials credentials) {
         return (credentials.getClass() == DuoCredentials.class);
-    }
-
-    /**
-     * Getter method for duoConfiguration
-     *
-     * @return a {@link DuoConfiguration} object
-     */
-    public DuoConfiguration getDuoConfiguration() {
-        return duoConfiguration;
-    }
-
-    /**
-     * Used by Spring injection to set the duoConfiguration object
-     *
-     * @param duoConfiguration
-     */
-    public void setDuoConfiguration(DuoConfiguration duoConfiguration) {
-        this.duoConfiguration = duoConfiguration;
     }
 }
