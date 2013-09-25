@@ -3,7 +3,7 @@ package edu.ucr.cnc.cas.support.duo.authentication
 import spock.lang.Specification
 import org.jasig.cas.authentication.principal.SimplePrincipal
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials
-import edu.ucr.cnc.cas.support.duo.authentication.principal.DuoCredentials
+import edu.usf.cims.cas.support.duo.authentication.principal.DuoCredentials
 import org.jasig.cas.authentication.MutableAuthentication
 import edu.ucr.cnc.cas.support.duo.CasConstants
 

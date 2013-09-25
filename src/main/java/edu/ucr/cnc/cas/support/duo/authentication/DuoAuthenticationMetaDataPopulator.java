@@ -1,6 +1,6 @@
 package edu.ucr.cnc.cas.support.duo.authentication;
 
-import edu.ucr.cnc.cas.support.duo.authentication.principal.DuoCredentials;
+import edu.usf.cims.cas.support.duo.authentication.principal.DuoCredentials;
 import edu.ucr.cnc.cas.support.duo.CasConstants;
 import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.Authentication;
