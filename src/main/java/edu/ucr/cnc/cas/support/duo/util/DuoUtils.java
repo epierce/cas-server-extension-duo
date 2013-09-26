@@ -2,7 +2,8 @@ package edu.ucr.cnc.cas.support.duo.util;
 
 import com.duosecurity.DuoWeb;
 import edu.ucr.cnc.cas.support.duo.DuoConfiguration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Performs important tasks related to the Duo authentication process.
@@ -14,7 +15,7 @@ public class DuoUtils {
      */
     private DuoConfiguration duoConfiguration;
 
-    private Logger logger = Logger.getLogger(getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(DuoUtils.class);
 
     /**
      * Generates the signed request via the {@link DuoWeb} API that is embedded in the duo login page so that the javascript authentication process
@@ -27,13 +28,13 @@ public class DuoUtils {
      */
     public String generateSignedRequest(String username) {
 
-        this.logger.debug("generating signing request from Duo for " + username);
+        LOGGER.debug("Generating signing request from Duo for {}", username);
 
         // Use the DuoWeb API to get a Duo request
         String signedRequest = DuoWeb.signRequest(duoConfiguration.getIntegrationKey(),
                 duoConfiguration.getSecretKey(), duoConfiguration.getApplicationKey(), username);
 
-        this.logger.debug("Duo returned signed request " + signedRequest);
+        LOGGER.debug("Duo returned signed request {}", signedRequest);
 
         return signedRequest;
     }

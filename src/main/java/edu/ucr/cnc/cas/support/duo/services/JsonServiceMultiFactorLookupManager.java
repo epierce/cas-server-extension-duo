@@ -34,8 +34,7 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
     private static final String REQUIRE_CHECK = "CHECK_LIST";
     private static final String REQUIRE_NONE = "NONE";
 
-    private static final Logger logger = LoggerFactory.getLogger(JsonServiceMultiFactorLookupManager.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonServiceMultiFactorLookupManager.class);
 
     @Override
     public boolean getMFARequired(RegisteredService registeredService, String username) {
@@ -44,11 +43,11 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
             String result = (String) registeredServiceWithAttributes.getExtraAttributes().get(this.multiFactorRequiredAttributeName);
             
             if(result == null){
-              logger.debug("No MultiFactor requirement found for service {}", registeredServiceWithAttributes.getServiceId());
+              LOGGER.debug("No MultiFactor requirement found for service {}", registeredServiceWithAttributes.getServiceId());
               return false;
             }
 
-            logger.debug("Check MultiFactor requirement for service {} returned: {}", registeredServiceWithAttributes.getServiceId(), result);
+            LOGGER.debug("Check MultiFactor requirement for service {} returned: {}", registeredServiceWithAttributes.getServiceId(), result);
             if (result.equalsIgnoreCase(REQUIRE_NONE)) {  
                 return false;
             } else if (result.equalsIgnoreCase(REQUIRE_ALL)) {
@@ -56,10 +55,10 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
             } else if (result.equalsIgnoreCase(REQUIRE_CHECK)) {
                 //Compare the username to the list from the service registry
                 List mfaUsers = getMFARequiredUsers(registeredService);
-                logger.debug("MultiFactor required for service {} and users: {}", registeredServiceWithAttributes.getServiceId(), mfaUsers.toString());
+                LOGGER.debug("MultiFactor required for service {} and users: {}", registeredServiceWithAttributes.getServiceId(), mfaUsers.toString());
                 return mfaUsers.contains(username);
             } else {
-                logger.warn("MultiFactor check for service {} returned unhandled results: {}", registeredServiceWithAttributes.getServiceId(), result);
+                LOGGER.warn("MultiFactor check for service {} returned unhandled results: {}", registeredServiceWithAttributes.getServiceId(), result);
                 return false;
             }
         }

@@ -2,7 +2,6 @@ package edu.ucr.cnc.cas.support.duo.web.flow;
 
 import edu.ucr.cnc.cas.support.duo.CasConstants;
 import edu.ucr.cnc.cas.support.duo.services.ServiceMultiFactorLookupManager;
-import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServicesManager;
@@ -11,8 +10,9 @@ import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
-
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * CheckLoadOfTicketGrantingTicket is a Spring MVC {@link AbstractAction} that looks at the requirements of
@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
  */
 public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckLoaOfTicketGrantingTicket.class);
 
     @NotNull
     private ServiceMultiFactorLookupManager serviceMultiFactorLookupManager;
@@ -40,7 +40,7 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
 
     @Override
     protected Event doExecute(RequestContext context) throws Exception {
-        this.logger.debug("Checking the LOA of a TGT");
+        LOGGER.debug("Checking the LOA of a TGT");
 
         // Get the TGT id from the flow scope and retrieve the actual TGT from the ticket registry
         String ticketGrantingTicketId = (String)context.getFlowScope().get("ticketGrantingTicketId");
@@ -49,7 +49,7 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
 
         // If there isn't a matching TGT in the registry let the user continue
         if (ticketGrantingTicket == null) {
-            this.logger.debug("no TGT found for TGT ID '" + ticketGrantingTicketId + "'");
+            LOGGER.debug("No TGT found for TGT ID [{}]", ticketGrantingTicketId);
             return result("continue");
         }
 
@@ -66,7 +66,7 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
           tgtLOA = CasConstants.LOA_SF;
         }
 
-        logger.debug("LOA of TGT " + ticketGrantingTicketId + " is set to " + tgtLOA);
+        LOGGER.debug("LOA of TGT {} is set to {}", ticketGrantingTicketId, tgtLOA);
 
         // Should the user be required to reauthenticate?
         if((serviceMultiFactorRequired) && (!tgtLOA.equals(CasConstants.LOA_TF))) {

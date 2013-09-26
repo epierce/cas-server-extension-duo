@@ -3,7 +3,6 @@ package edu.ucr.cnc.cas.support.duo.web.flow;
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import edu.ucr.cnc.cas.support.duo.authentication.principal.UserMultiFactorLookupManager;
 import edu.ucr.cnc.cas.support.duo.services.ServiceMultiFactorLookupManager;
-import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
 import org.jasig.cas.services.RegisteredService;
@@ -11,8 +10,9 @@ import org.jasig.cas.services.ServicesManager;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
-
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Spring action for determining if a user requires multi-factor authentication
@@ -29,7 +29,7 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
     private UserMultiFactorLookupManager userMultiFactorLookupManager;
     private ServiceMultiFactorLookupManager serviceMultiFactorLookupManager;
     private ServicesManager servicesManager;
-    private Logger logger = Logger.getLogger(getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(DetermineIfTwoFactorAction.class);
 
     /**
      * Injected in duoConfiguration.xml
@@ -71,7 +71,7 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
         // If the service requires MFA, it's required for all
         if(serviceMFARequired) {
             if(this.logToStatsD) this.statsDClient.incrementCounter(this.MFA_NEEDED);
-            this.logger.debug("Multi-factor required by service.  " + userId + " result is " + this.MFA_NEEDED);
+            LOGGER.debug("Multi-factor required by service.  {} result is {}", userId, this.MFA_NEEDED);
             return result(this.MFA_NEEDED);
         }
 
@@ -83,12 +83,12 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
         // If the user requires it and the service is optional, it is required
         if(userMFARequired) {
             if(this.logToStatsD) this.statsDClient.incrementCounter(this.MFA_NEEDED);
-            this.logger.debug("Multi-factor required by user.  " + userId + " result is " + this.MFA_NEEDED);
+            LOGGER.debug("Multi-factor required by user.  {} result is {}", userId, this.MFA_NEEDED);
             return result(this.MFA_NEEDED);
         }
 
         if(this.logToStatsD) this.statsDClient.incrementCounter(this.NO_MFA_NEEDED);
-        this.logger.debug("Multi-factor not required by service or user.  " + userId + " result is " + this.NO_MFA_NEEDED);
+        LOGGER.debug("Multi-factor not required by service or user.  {} result is {}", userId, this.NO_MFA_NEEDED);
         return result(this.NO_MFA_NEEDED);
     }
 

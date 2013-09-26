@@ -1,6 +1,5 @@
 package edu.ucr.cnc.cas.support.duo.authentication;
 
-import org.apache.log4j.Logger;
 import edu.ucr.cnc.cas.support.duo.CasConstants;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.AuthenticationMetaDataPopulator;
@@ -9,6 +8,8 @@ import org.jasig.cas.authentication.principal.Credentials;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.SimplePrincipal;
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * UsernamePasswordAuthenticationMetaDataPopulator is used to insert an attribute into a CAS TGT indicating that a
@@ -19,7 +20,7 @@ import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
  */
 public class UsernamePasswordAuthenticationMetaDataPopulator implements AuthenticationMetaDataPopulator{
 
-    private Logger logger = Logger.getLogger(getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(UsernamePasswordAuthenticationMetaDataPopulator.class);
 
     /**
      * Returns an {@link Authentication} object with the added LOA_SF attributed appended.
@@ -39,7 +40,7 @@ public class UsernamePasswordAuthenticationMetaDataPopulator implements Authenti
             mutableAuthentication.getAttributes().putAll(authentication.getAttributes());
             mutableAuthentication.getAttributes().put(CasConstants.LOA_ATTRIBUTE, CasConstants.LOA_SF);
 
-            this.logger.debug("adding LOA of " + CasConstants.LOA_SF + " to Authentication object for " + simplePrincipal.getId());
+            LOGGER.debug("Adding LOA of {} to Authentication object for {}", CasConstants.LOA_SF, simplePrincipal.getId());
 
             return mutableAuthentication;
         }

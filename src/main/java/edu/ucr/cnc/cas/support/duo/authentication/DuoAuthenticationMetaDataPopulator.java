@@ -2,13 +2,14 @@ package edu.ucr.cnc.cas.support.duo.authentication;
 
 import edu.usf.cims.cas.support.duo.authentication.principal.DuoCredentials;
 import edu.ucr.cnc.cas.support.duo.CasConstants;
-import org.apache.log4j.Logger;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.AuthenticationMetaDataPopulator;
 import org.jasig.cas.authentication.MutableAuthentication;
 import org.jasig.cas.authentication.principal.Credentials;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.SimplePrincipal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DuoAuthenticationMetaDataPopulator implements the {@link AuthenticationMetaDataPopulator} interface and is responsible
@@ -20,7 +21,7 @@ import org.jasig.cas.authentication.principal.SimplePrincipal;
  */
 public class DuoAuthenticationMetaDataPopulator implements AuthenticationMetaDataPopulator {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(DuoAuthenticationMetaDataPopulator.class);
 
     /**
      * Returns an {@link Authentication} object with the added LOA_TF attributed appended.
@@ -41,7 +42,7 @@ public class DuoAuthenticationMetaDataPopulator implements AuthenticationMetaDat
             mutableAuthentication.getAttributes().putAll(authentication.getAttributes());
             mutableAuthentication.getAttributes().put(CasConstants.LOA_ATTRIBUTE, CasConstants.LOA_TF);
 
-            this.logger.debug("adding LOA of " + CasConstants.LOA_TF + " to Authentication object for " + simplePrincipal.getId());
+            LOGGER.debug("adding LOA of {} to Authentication object for {}", CasConstants.LOA_TF, simplePrincipal.getId());
 
             return mutableAuthentication;
         }
