@@ -34,8 +34,7 @@ class GenerateDuoCredentialsActionTests extends Specification {
     sfa_principal.id  >> "testUser"
     sfa_authentication.attributes >> [(CasConstants.LOA_ATTRIBUTE): CasConstants.LOA_SF]
 
-    def credentials = new UsernamePasswordCredentials()
-    credentials.username = "testUser"
+
 
     ticketRegistry.getTicket('test-tgt-sfa', TicketGrantingTicket) >> sfa_tgt
     sfa_tgt.authentication >> sfa_authentication
@@ -43,21 +42,86 @@ class GenerateDuoCredentialsActionTests extends Specification {
     sfa_principal.id  >> "testUser"
     sfa_authentication.attributes >> [(CasConstants.LOA_ATTRIBUTE): CasConstants.LOA_SF]
 
-    //Configure the mocked web request
-    requestContext.getFlowScope() >> new LocalAttributeMap([credentials: credentials, ticketGrantingTicketId: 'test-tgt-sfa'])
+    
 
   }
 
-  def "Create a new DuoCredential"(){
+  def "Create a new DuoCredential during intial login"(){
     given:
+
+      def credentials = new UsernamePasswordCredentials()
+      credentials.username = "testUser"
+
+      //Configure the mocked web request
+      requestContext.getFlowScope() >> new LocalAttributeMap([credentials: credentials])
+      requestContext.getRequestScope() >> new LocalAttributeMap([ticketGrantingTicketId: 'test-tgt-sfa'])
+
       def action = new GenerateDuoCredentialsAction()
       action.ticketRegistry = ticketRegistry
     when:
-      action.createDuoCredentials(requestContext)
-      def result = requestContext.flowScope.duoCredentials
+      def result = action.createDuoCredentials(requestContext)
+      def resultCredential = requestContext.flowScope.duoCredentials
 
     then:
-      result instanceof DuoCredentials
-      result.getPrincipal().getId() == "testUser"
+      result == "created"
+      resultCredential instanceof DuoCredentials
+      resultCredential.getPrincipal().getId() == "testUser"
   }
+
+  def "Create a new DuoCredential after initial login"(){
+    given:
+      //Configure the mocked web request
+      requestContext.getFlowScope() >> new LocalAttributeMap([ticketGrantingTicketId: 'test-tgt-sfa'])
+      requestContext.getRequestScope() >> new LocalAttributeMap([:])
+
+      def action = new GenerateDuoCredentialsAction()
+      action.ticketRegistry = ticketRegistry
+    when:
+      def result = action.createDuoCredentials(requestContext)
+      def resultCredential = requestContext.flowScope.duoCredentials
+
+    then:
+      result == "created"
+      resultCredential instanceof DuoCredentials
+      resultCredential.getPrincipal().getId() == "testUser"
+  }
+
+  def "Do not create a DuoCredential when there is no TGTid"(){
+    given:
+      def credentials = new UsernamePasswordCredentials()
+      credentials.username = "testUser"
+
+      //Configure the mocked web request
+      requestContext.getFlowScope() >> new LocalAttributeMap([credentials: credentials])
+      requestContext.getRequestScope() >> new LocalAttributeMap([:])
+
+      def action = new GenerateDuoCredentialsAction()
+      action.ticketRegistry = ticketRegistry
+    when:
+      def result = action.createDuoCredentials(requestContext)
+      def resultCredential = requestContext.flowScope.duoCredentials
+
+    then:
+      result == "error"
+  }
+
+  def "Do not create a DuoCredential when there is no first-factor authentication"(){
+    given:
+      def credentials = new UsernamePasswordCredentials()
+      credentials.username = "testUser"
+
+      //Configure the mocked web request
+      requestContext.getFlowScope() >> new LocalAttributeMap([credentials: credentials])
+      requestContext.getRequestScope() >> new LocalAttributeMap([ticketGrantingTicketId: 'test-tgt-not-found'])
+
+      def action = new GenerateDuoCredentialsAction()
+      action.ticketRegistry = ticketRegistry
+    when:
+      def result = action.createDuoCredentials(requestContext)
+      def resultCredential = requestContext.flowScope.duoCredentials
+
+    then:
+      result == "error"
+  }
+   
 }
