@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+    <bean id="serviceLookupManager" class="edu.ucr.cnc.cas.support.duo.services.JsonServiceMultiFactorLookupManager">
+        <property name="multiFactorRequiredAttributeName" value="RequireTwoFactor"/>
+        <property name="multiFactorRequiredUserListAttributeName" value="TwoFactorUsers"/>
+    </bean>
+
+    <bean id="userLookupManager" class="edu.ucr.cnc.cas.support.duo.authentication.principal.LdapUserMultiFactorLookupManager">
+        <property name="contextSource" ref="LdapSearchcontext"/>
+        <property name="filter" value="(uid=%u)"/>
+        <property name="searchBase" value="dc=example,dc=edu"/>
+        <property name="multiFactorAttributeName" value="casMFARequired"/>
+    </bean>
+
+    <bean id="determineIfTwoFactorAction" class="edu.ucr.cnc.cas.support.duo.web.flow.DetermineIfTwoFactorAction">
+        <property name="serviceMultiFactorLookupManager" ref="serviceLookupManager"/>
+        <property name="servicesManager" ref="servicesManager"/>
+    </bean>
+
+    <bean id="checkLoaOfTicketGrantingTicket" class="edu.ucr.cnc.cas.support.duo.web.flow.CheckLoaOfTicketGrantingTicket">
+        <property name="serviceMultiFactorLookupManager" ref="serviceLookupManager"/>
+        <property name="servicesManager" ref="servicesManager"/>
+        <property name="ticketRegistry" ref="ticketRegistry"/>
+    </bean>
+
+    <bean id="generateDuoCredentials" class="edu.usf.cims.cas.support.duo.web.flow.GenerateDuoCredentialsAction">
+        <property name="ticketRegistry" ref="ticketRegistry"/>
+    </bean>
+
+</beans>
