@@ -3,7 +3,7 @@ cas-server-extension-duo
 
 This module is based on https://github.com/highlnd/cas-overlay-duo  The goal is to extract the code/configuration required to use Duo for two-factor authentication and package it into a module that can be easily included in a CAS deployment. 
 
-[DuoSecurity](https://www.duosecurity.com/) provides a hosted service for two-factor authentication using mobile devices, landline phones and hardware tokens.  They provide clients for various applications (VPN, SSH, etc) but an integration for CAS wasn't available.  [Mike Kennedy](https://github.com/highlnd) developed the integration uding the [Java DuoWeb Client](https://github.com/duosecurity/duo_java).
+[DuoSecurity](https://www.duosecurity.com/) provides a hosted service for two-factor authentication using mobile devices, landline phones and hardware tokens.  They provide clients for various applications (VPN, SSH, etc) but an integration for CAS wasn't available.  [Mike Kennedy](https://github.com/highlnd) developed the integration using the [Java DuoWeb Client](https://github.com/duosecurity/duo_java).
 
 Installation & Configuration
 ===============
@@ -98,8 +98,8 @@ There are two new files in `WEB-INF/spring-configuration` that need to be config
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
     <bean id="serviceLookupManager" class="edu.ucr.cnc.cas.support.duo.services.JsonServiceMultiFactorLookupManager">
-        <property name="multiFactorRequiredAttributeName" value="RequireTwoFactor"/>
-        <property name="multiFactorRequiredUserListAttributeName" value="TwoFactorUsers"/>
+        <property name="multiFactorRequiredAttributeName" value="casMFARequired"/>
+        <property name="multiFactorRequiredUserListAttributeName" value="casMFARequiredUsers"/>
     </bean>
     
     <bean id="userLookupManager" class="edu.ucr.cnc.cas.support.duo.authentication.principal.LdapUserMultiFactorLookupManager">
@@ -131,9 +131,39 @@ There are two new files in `WEB-INF/spring-configuration` that need to be config
 `JsonServiceMultiFactorLookupManager` checks the JSON service registry for the requested service and determines if two-factor authentication is required for the current user.  This bean has two properties:
 
 * `multiFactorRequiredAttributeName` - Attribute that contains what user population (**ALL**, **NONE**, or **CHECK_LIST**) will be required to use two-facter auth. (default: casMFARequired)
-* `multiFactorRequiredUserListAttributeName` - Attribute that contains a list of users required to use two-factor auth when the service's `casMFARequired` attribute equals **CHECK_LIST**
+* `multiFactorRequiredUserListAttributeName` - Attribute that contains a list of users required to use two-factor auth when the service's `casMFARequired` attribute equals **CHECK_LIST** (default: casMFARequiredUsers)
 
-**TODO: Include example JSON service registry entry**
+Example service entry requiring two users (alice and bob) to use Duo authentication.  All other users could login with just username/password credentials. 
+
+```JSON
+{                          
+    "services": [
+        {
+            "enabled": true,
+            "ignoreAttributes": false,
+            "theme": "default",
+            "id": 1,
+            "extraAttributes": {
+                "casMFARequired": "CHECK_LIST",
+                "casMFARequiredUsers": [ 
+                  "alice",
+                  "bob"
+                ]
+            },
+            "allowedToProxy": true,
+            "serviceId": "https://example.edu/my_secure_service",
+            "description": "Secure service - Alice and Bob are admins and need two-factor auth to login",
+            "name": "My example service",
+            "ssoEnabled": true,
+            "anonymousAccess": false,
+            "evaluationOrder": 0,
+            "allowedAttributes": [
+
+            ]
+        }
+     ]
+}
+```
 
 ####userLookupManager
 `LdapUserMultiFactorLookupManager` searches LDAP for the current user and looks for an attribute that determines if this user is required to use two-factor authentication for **all** CAS services.
