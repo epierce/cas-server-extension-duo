@@ -2,7 +2,7 @@
   <name>Jasig Central Authentication Service DuoSecurity Two-Factor Authentication</name>
   <groupId>edu.usf.cims</groupId>
   <artifactId>cas-server-extension-duo</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <modelVersion>4.0.0</modelVersion>
   <inceptionYear>2013</inceptionYear>
@@ -46,14 +46,14 @@
       <roles>
           <role>Developer</role>
       </roles>
-    </developer>    
+    </developer>
   </developers>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <cas.version>3.5.2</cas.version>
-    <cas-addons.version>1.7</cas-addons.version>
+    <cas-addons.version>1.9</cas-addons.version>
     <servlet.version>2.5</servlet.version>
     <junit.version>4.11</junit.version>
     <statsd.version>2.0.0</statsd.version>
@@ -61,7 +61,7 @@
     <spock.version>0.7-groovy-2.0</spock.version>
     <ldap-test-utils.version>1.0.1</ldap-test-utils.version>
   </properties>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.jasig.cas</groupId>
@@ -116,7 +116,7 @@
     </dependency>
 
   </dependencies>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -198,7 +198,6 @@
           </execution>
         </executions>
       </plugin>
-    
     </plugins>
   </build>
 </project>
