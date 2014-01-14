@@ -80,4 +80,8 @@ public class DuoCredentials implements Credentials {
       }
       return null;
     }
+
+    public String toString() {
+        return "[Username: " + getPrincipal().getId() + "@DuoCredentials]";
+    }
 }
