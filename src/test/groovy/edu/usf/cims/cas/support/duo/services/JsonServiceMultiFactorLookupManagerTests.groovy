@@ -1,4 +1,4 @@
-package edu.ucr.cnc.cas.support.duo.services
+package edu.usf.cims.cas.support.duo.services
 
 import spock.lang.Specification
 import net.unicon.cas.addons.serviceregistry.RegisteredServiceWithAttributesImpl

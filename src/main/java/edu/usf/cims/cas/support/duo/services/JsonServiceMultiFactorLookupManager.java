@@ -1,9 +1,8 @@
-package edu.ucr.cnc.cas.support.duo.services;
+package edu.usf.cims.cas.support.duo.services;
 
 import edu.ucr.cnc.cas.support.duo.services.ServiceMultiFactorLookupManager;
 import net.unicon.cas.addons.serviceregistry.RegisteredServiceWithAttributes;
 import org.jasig.cas.services.RegisteredService;
-import org.jasig.cas.authentication.principal.Principal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +17,13 @@ import java.util.List;
  *   * 'ALL' - Require all users accessing this service to use MFA
  *   * 'NONE' - Do not require MFA for users accessing this service
  *   * 'CHECK_LIST' - Only users listed in multiFactorRequiredUserList are required to use MFA
+ *   * 'CHECK_ATTRIBUTE' - Check user attributes to determine if MFA is required
  *
  * For backwards-compatibility, if no value is found, MFA is assumed to NOT be required.
  *
+ * @author Eric Pierce
  * @author Michael Kennedy
- * @version 1.1
- * @see net.unicon.cas.addons.serviceregistry.JsonServiceRegistryDao
+ * @version 1.2
  *
  */
 public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLookupManager {
@@ -34,6 +34,7 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
     private static final String REQUIRE_ALL = "ALL";
     private static final String REQUIRE_CHECK = "CHECK_LIST";
     private static final String REQUIRE_NONE = "NONE";
+    private static final String REQUIRE_ATTRIBUTE = "CHECK_ATTRIBUTE";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonServiceMultiFactorLookupManager.class);
 
