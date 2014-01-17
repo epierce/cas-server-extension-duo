@@ -3,6 +3,7 @@ package edu.ucr.cnc.cas.support.duo.services;
 import edu.ucr.cnc.cas.support.duo.services.ServiceMultiFactorLookupManager;
 import net.unicon.cas.addons.serviceregistry.RegisteredServiceWithAttributes;
 import org.jasig.cas.services.RegisteredService;
+import org.jasig.cas.authentication.principal.Principal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,7 @@ import java.util.List;
 
 /**
  * An implementation of {@link ServiceMultiFactorLookupManager} that uses an attribute in the JSON service
- * registry to decide if Multi-factor Authentication (MFA) is required.  
+ * registry to decide if Multi-factor Authentication (MFA) is required.
  *
  * There are three possible values for the attribute:
  *   * 'ALL' - Require all users accessing this service to use MFA
@@ -37,18 +38,18 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonServiceMultiFactorLookupManager.class);
 
     @Override
-    public boolean getMFARequired(RegisteredService registeredService, String username) {
+    public boolean getMFARequired(RegisteredService registeredService, Principal principal) {
         if (registeredService instanceof RegisteredServiceWithAttributes) {
             RegisteredServiceWithAttributes registeredServiceWithAttributes = (RegisteredServiceWithAttributes)registeredService;
             String result = (String) registeredServiceWithAttributes.getExtraAttributes().get(this.multiFactorRequiredAttributeName);
-            
+
             if(result == null){
               LOGGER.debug("No MultiFactor requirement found for service {}", registeredServiceWithAttributes.getServiceId());
               return false;
             }
 
             LOGGER.debug("Check MultiFactor requirement for service {} returned: {}", registeredServiceWithAttributes.getServiceId(), result);
-            if (result.equalsIgnoreCase(REQUIRE_NONE)) {  
+            if (result.equalsIgnoreCase(REQUIRE_NONE)) {
                 return false;
             } else if (result.equalsIgnoreCase(REQUIRE_ALL)) {
                 return true;
@@ -56,7 +57,7 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
                 //Compare the username to the list from the service registry
                 List mfaUsers = getMFARequiredUsers(registeredService);
                 LOGGER.debug("MultiFactor required for service {} and users: {}", registeredServiceWithAttributes.getServiceId(), mfaUsers.toString());
-                return mfaUsers.contains(username);
+                return mfaUsers.contains(principal.getId());
             } else {
                 LOGGER.warn("MultiFactor check for service {} returned unhandled results: {}", registeredServiceWithAttributes.getServiceId(), result);
                 return false;

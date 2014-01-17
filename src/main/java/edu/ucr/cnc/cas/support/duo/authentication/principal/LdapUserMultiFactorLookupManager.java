@@ -41,9 +41,9 @@ public class LdapUserMultiFactorLookupManager implements UserMultiFactorLookupMa
     private String multiFactorAttributeValue = "YES";
 
     @Override
-    public boolean getMFARequired(String username) {
+    public boolean getMFARequired(Principal principal) {
 
-        String searchFilter = LdapUtils.getFilterWithValues(getFilter(), username);
+        String searchFilter = LdapUtils.getFilterWithValues(getFilter(), principal.getId());
 
         String result = "";
 
