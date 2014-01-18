@@ -1,11 +1,12 @@
 package edu.ucr.cnc.cas.support.duo.web.flow;
 
-import com.timgroup.statsd.NonBlockingStatsDClient;
 import net.unicon.cas.addons.authentication.AuthenticationSupport;
+import net.unicon.cas.addons.authentication.internal.DefaultAuthenticationSupport;
 import edu.ucr.cnc.cas.support.duo.authentication.principal.UserMultiFactorLookupManager;
 import edu.ucr.cnc.cas.support.duo.services.ServiceMultiFactorLookupManager;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServicesManager;
@@ -26,37 +27,38 @@ import org.slf4j.LoggerFactory;
  */
 public class DetermineIfTwoFactorAction extends AbstractAction {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DetermineIfTwoFactorAction.class);
+
+    @NotNull
+    private TicketRegistry ticketRegistry;
+
+    private ServicesManager servicesManager;
+    private AuthenticationSupport authenticationSupport;
+    private UserMultiFactorLookupManager userMultiFactorLookupManager;
+    private ServiceMultiFactorLookupManager serviceMultiFactorLookupManager;
+
     final String NO_MFA_NEEDED = "noMultiFactorNeeded";
     final String MFA_NEEDED = "multiFactorNeeded";
 
-    private UserMultiFactorLookupManager userMultiFactorLookupManager;
-    private ServiceMultiFactorLookupManager serviceMultiFactorLookupManager;
-    private ServicesManager servicesManager;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DetermineIfTwoFactorAction.class);
-
     /**
-     * Injected in duoConfiguration.xml
-     */
-    private NonBlockingStatsDClient statsDClient;
-    private boolean logToStatsD = false;
-
-    /**
-     * Determines whether multi-factor is needed. The wiki has more information at
-     * <a href="https://wiki.ucr.edu/display/CIS/CAS+Multifactor+Required+Matrix>https://wiki.ucr.edu/display/CIS/CAS+Multifactor+Required+Matrix</a> for the rules.
+     * Determines whether multi-factor is needed.
      *
      * @param context
      * @return
      * @throws Exception
-     * @see <a href="https://wiki.ucr.edu/display/CIS/CAS+Multifactor+Required+Matrix>https://wiki.ucr.edu/display/CIS/CAS+Multifactor+Required+Matrix</a>
      */
     @Override
     protected Event doExecute(RequestContext context) throws Exception {
 
+        this.authenticationSupport = new DefaultAuthenticationSupport(ticketRegistry);
+
         boolean serviceMFARequired = false;
         boolean userMFARequired = false;
 
-        final Principal principal = this.authenticationSupport.getAuthenticatedPrincipalFrom(WebUtils.getTicketGrantingTicketId(requestContext));
-        //Guard against expired SSO sessions. 'error' event should trigger the transition to the 'generateLoginTicket' state
+        final Principal principal = this.authenticationSupport.getAuthenticatedPrincipalFrom(WebUtils.getTicketGrantingTicketId(context));
+
+        /* Guard against expired SSO sessions. 'error' event should trigger the transition to the 'generateLoginTicket' state */
+
         if (principal == null) {
             logger.warn("The SSO session is no longer valid. Restarting the login process...");
             return error();
@@ -64,16 +66,14 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
 
         final Object principalAttributes = principal.getAttributes();
         final String principalId = principal.getId();
-        final Service service = WebUtils.getService(requestContext);
-        final String serviceId = service.getId();
 
         if((this.serviceMultiFactorLookupManager == null) && (this.userMultiFactorLookupManager == null)){
           throw new java.lang.IllegalArgumentException("ServiceMultiFactorLookupManager or UserMultiFactorLookupManager required!");
         }
 
-        // Only perform this if a servicesManager and a ServiceMultiFactorLookupManager are specified in MultiFactorCasConfiguration.xml
+        /* Only perform this if a servicesManager and a ServiceMultiFactorLookupManager are specified in MultiFactorCasConfiguration.xml */
         if((this.servicesManager != null) && (this.serviceMultiFactorLookupManager != null)) {
-            // Get the registered service from flow scope
+            /* Get the registered service from flow scope */
             Service service = (Service)context.getFlowScope().get("service");
             RegisteredService registeredService = this.servicesManager.findServiceBy(service);
             serviceMFARequired = this.serviceMultiFactorLookupManager.getMFARequired(registeredService, principal);
@@ -81,7 +81,6 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
 
         // If the service requires MFA, it's required for all
         if(serviceMFARequired) {
-            if(this.logToStatsD) this.statsDClient.incrementCounter(this.MFA_NEEDED);
             LOGGER.debug("Multi-factor required by service.  {} result is {}", principalId, this.MFA_NEEDED);
             return result(this.MFA_NEEDED);
         }
@@ -93,12 +92,10 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
 
         // If the user requires it and the service is optional, it is required
         if(userMFARequired) {
-            if(this.logToStatsD) this.statsDClient.incrementCounter(this.MFA_NEEDED);
             LOGGER.debug("Multi-factor required by user.  {} result is {}", principalId, this.MFA_NEEDED);
             return result(this.MFA_NEEDED);
         }
 
-        if(this.logToStatsD) this.statsDClient.incrementCounter(this.NO_MFA_NEEDED);
         LOGGER.debug("Multi-factor not required by service or user.  {} result is {}", principalId, this.NO_MFA_NEEDED);
         return result(this.NO_MFA_NEEDED);
     }
@@ -127,12 +124,11 @@ public class DetermineIfTwoFactorAction extends AbstractAction {
         this.serviceMultiFactorLookupManager = serviceMultiFactorLookupManager;
     }
 
-    public NonBlockingStatsDClient getStatsDClient() {
-        return statsDClient;
+    public TicketRegistry getTicketRegistry() {
+        return ticketRegistry;
     }
 
-    public void setStatsDClient(NonBlockingStatsDClient statsDClient) {
-        this.logToStatsD = true;
-        this.statsDClient = statsDClient;
+    public void setTicketRegistry(TicketRegistry ticketRegistry) {
+        this.ticketRegistry = ticketRegistry;
     }
 }

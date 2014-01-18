@@ -3,11 +3,13 @@ package edu.usf.cims.cas.support.duo.services;
 import edu.ucr.cnc.cas.support.duo.services.ServiceMultiFactorLookupManager;
 import net.unicon.cas.addons.serviceregistry.RegisteredServiceWithAttributes;
 import org.jasig.cas.services.RegisteredService;
+import org.jasig.cas.authentication.principal.Principal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * An implementation of {@link ServiceMultiFactorLookupManager} that uses an attribute in the JSON service
@@ -16,8 +18,8 @@ import java.util.List;
  * There are three possible values for the attribute:
  *   * 'ALL' - Require all users accessing this service to use MFA
  *   * 'NONE' - Do not require MFA for users accessing this service
- *   * 'CHECK_LIST' - Only users listed in multiFactorRequiredUserList are required to use MFA
- *   * 'CHECK_ATTRIBUTE' - Check user attributes to determine if MFA is required
+ *   * 'USER_LIST' - Only users listed in multiFactorRequiredUserList are required to use MFA
+ *   * 'USER_ATTRIBUTE' - Check user attributes to determine if MFA is required
  *
  * For backwards-compatibility, if no value is found, MFA is assumed to NOT be required.
  *
@@ -30,11 +32,12 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
 
     private String multiFactorRequiredAttributeName = "casMFARequired";
     private String multiFactorRequiredUserListAttributeName = "casMFARequiredUsers";
+    private String multiFactorRequiredAttributeMapAttributeName = "casMFAUserAttributes";
 
     private static final String REQUIRE_ALL = "ALL";
-    private static final String REQUIRE_CHECK = "CHECK_LIST";
+    private static final String REQUIRE_USER = "USER_LIST";
     private static final String REQUIRE_NONE = "NONE";
-    private static final String REQUIRE_ATTRIBUTE = "CHECK_ATTRIBUTE";
+    private static final String REQUIRE_ATTRIBUTE = "USER_ATTRIBUTE";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonServiceMultiFactorLookupManager.class);
 
@@ -54,11 +57,16 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
                 return false;
             } else if (result.equalsIgnoreCase(REQUIRE_ALL)) {
                 return true;
-            } else if (result.equalsIgnoreCase(REQUIRE_CHECK)) {
+            } else if (result.equalsIgnoreCase(REQUIRE_USER)) {
                 //Compare the username to the list from the service registry
                 List mfaUsers = getMFARequiredUsers(registeredService);
                 LOGGER.debug("MultiFactor required for service {} and users: {}", registeredServiceWithAttributes.getServiceId(), mfaUsers.toString());
                 return mfaUsers.contains(principal.getId());
+            } else if (result.equalsIgnoreCase(REQUIRE_ATTRIBUTE)) {
+                //Compare the user's attributes to the list from the service registry
+                Map mfaAttributeMap = getMFARequiredAttributeMap(registeredService);
+                LOGGER.debug("MultiFactor required for service {} and attributes: {}", registeredServiceWithAttributes.getServiceId(), mfaAttributeMap.toString());
+                return false;
             } else {
                 LOGGER.warn("MultiFactor check for service {} returned unhandled results: {}", registeredServiceWithAttributes.getServiceId(), result);
                 return false;
@@ -68,10 +76,19 @@ public class JsonServiceMultiFactorLookupManager implements ServiceMultiFactorLo
         return false;
     }
 
-    public List getMFARequiredUsers(RegisteredService registeredService) {
+    private List getMFARequiredUsers(RegisteredService registeredService) {
         if (registeredService instanceof RegisteredServiceWithAttributes) {
             RegisteredServiceWithAttributes registeredServiceWithAttributes = (RegisteredServiceWithAttributes)registeredService;
             return (List) registeredServiceWithAttributes.getExtraAttributes().get(this.multiFactorRequiredUserListAttributeName);
+        }
+
+        return null;
+    }
+
+    private Map getMFARequiredAttributeMap(RegisteredService registeredService) {
+        if (registeredService instanceof RegisteredServiceWithAttributes) {
+            RegisteredServiceWithAttributes registeredServiceWithAttributes = (RegisteredServiceWithAttributes)registeredService;
+            return (Map) registeredServiceWithAttributes.getExtraAttributes().get(this.multiFactorRequiredAttributeMapAttributeName);
         }
 
         return null;
