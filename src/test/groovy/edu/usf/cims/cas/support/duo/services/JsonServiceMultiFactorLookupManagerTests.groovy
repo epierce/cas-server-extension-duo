@@ -22,6 +22,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
       then:
         result == false
     }
+
   def "Access a service that requires MFA for all users"(){
       given:
         def multiFactorRequiredAttributeName = "casMFARequired"
@@ -61,7 +62,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
   def "Access a service that requires MFA for some users"(){
       given:
         def multiFactorRequiredAttributeName = "casMFARequired"
-        def multiFactorRequiredAttributeValue = "CHECK_LIST"
+        def multiFactorRequiredAttributeValue = "USER_LIST"
         def multiFactorRequiredUserListAttributeName = "casMFARequiredUsers"
         def multiFactorRequiredUserListAttributeValue = ["testUser","foo","bar"]
         principal.id >> "testUser"
@@ -82,7 +83,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
   def "Access a service that requires MFA for some users - alternate attribute names"(){
       given:
         def multiFactorRequiredAttributeName = "requireTwoFactor"
-        def multiFactorRequiredAttributeValue = "CHECK_LIST"
+        def multiFactorRequiredAttributeValue = "USER_LIST"
         def multiFactorRequiredUserListAttributeName = "TwoFactorUsers"
         def multiFactorRequiredUserListAttributeValue = ["testUser","foo","bar"]
         principal.id >> "testUser"
@@ -105,7 +106,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
   def "Access a service that requires MFA for some users and the current user is not in the list"(){
       given:
         def multiFactorRequiredAttributeName = "casMFARequired"
-        def multiFactorRequiredAttributeValue = "CHECK_LIST"
+        def multiFactorRequiredAttributeValue = "USER_LIST"
         def multiFactorRequiredUserListAttributeName = "casMFARequiredUsers"
         def multiFactorRequiredUserListAttributeValue = ["baz","foo","bar"]
         principal.id >> "testUser"
