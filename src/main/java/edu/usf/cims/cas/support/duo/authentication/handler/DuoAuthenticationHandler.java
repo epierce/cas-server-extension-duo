@@ -1,6 +1,5 @@
 package edu.usf.cims.cas.support.duo.authentication.handler;
 
-import com.timgroup.statsd.NonBlockingStatsDClient;
 import edu.ucr.cnc.cas.support.duo.DuoConfiguration;
 
 import org.jasig.cas.authentication.handler.AuthenticationException;
@@ -28,12 +27,6 @@ import org.slf4j.LoggerFactory;
 public class DuoAuthenticationHandler implements AuthenticationHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DuoAuthenticationHandler.class);
-
-    /**
-     * Injected in duoConfiguration.xml
-     */
-    private NonBlockingStatsDClient statsDClient;
-    private boolean logToStatsD = false;
 
     /**
      * This should be injected via Spring in duoConfiguration.xml
@@ -69,15 +62,12 @@ public class DuoAuthenticationHandler implements AuthenticationHandler {
         LOGGER.debug("Response from Duo verify: [{}]", duoVerifyResponse);
 
         if(duoVerifyResponse.equals(duoCredentials.getPrincipal().getId())){
-          if(this.logToStatsD) this.statsDClient.incrementCounter("duosuccess");
           LOGGER.info("Successful Duo authentication for [{}]", duoCredentials.getPrincipal().getId());
           return true;
         } else if(duoVerifyResponse.equals("")){
-          if(this.logToStatsD) this.statsDClient.incrementCounter("duofailure");
           LOGGER.warn("Duo authentication failed for [{}]", duoCredentials.getPrincipal().getId());
           return false;
         } else {
-          if(this.logToStatsD) this.statsDClient.incrementCounter("duofailure");
           LOGGER.error("Duo authentication error! Login username: [{}], Duo response: [{}]", 
                         duoCredentials.getPrincipal().getId(),
                         duoVerifyResponse);
@@ -115,14 +105,5 @@ public class DuoAuthenticationHandler implements AuthenticationHandler {
      */
     public void setDuoConfiguration(DuoConfiguration duoConfiguration) {
         this.duoConfiguration = duoConfiguration;
-    }
-
-    public NonBlockingStatsDClient getStatsDClient() {
-        return statsDClient;
-    }
-
-    public void setStatsDClient(NonBlockingStatsDClient statsDClient) {
-        this.statsDClient = statsDClient;
-        this.logToStatsD = true;
     }
 }
