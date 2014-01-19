@@ -15,7 +15,7 @@ class DefaultMultiFactorAttributeValidator implements MultiFactorAttributeValida
         if(userAttributes[it] instanceof Collection){
           return userAttributes[it].intersect([serviceAttributes[it]].flatten())
         } else {
-          return serviceAttributes[it].equals(userAttributes[it])
+          return serviceAttributes[it].equalsIgnoreCase(userAttributes[it])
         }
       }
     }
