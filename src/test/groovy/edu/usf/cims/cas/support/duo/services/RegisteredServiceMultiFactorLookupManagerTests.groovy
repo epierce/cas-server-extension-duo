@@ -4,7 +4,7 @@ import spock.lang.Specification
 import net.unicon.cas.addons.serviceregistry.RegisteredServiceWithAttributesImpl
 import org.jasig.cas.authentication.principal.Principal
 
-class JsonServiceMultiFactorLookupManagerTests extends Specification {
+class RegisteredServiceMultiFactorLookupManagerTests extends Specification {
 
   def principal = Mock(Principal)
 
@@ -16,7 +16,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
         service.serviceId = "Test-NoMFASetting"
 
       when:
-        def lookupManager = new JsonServiceMultiFactorLookupManager()
+        def lookupManager = new RegisteredServiceMultiFactorLookupManager()
         def result = lookupManager.getMFARequired(service,principal)
 
       then:
@@ -34,7 +34,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
         service.extraAttributes = [(multiFactorRequiredAttributeName) : multiFactorRequiredAttributeValue]
 
       when:
-        def lookupManager = new JsonServiceMultiFactorLookupManager()
+        def lookupManager = new RegisteredServiceMultiFactorLookupManager()
         def result = lookupManager.getMFARequired(service,principal)
 
       then:
@@ -52,7 +52,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
         service.extraAttributes = [(multiFactorRequiredAttributeName) : multiFactorRequiredAttributeValue]
 
       when:
-        def lookupManager = new JsonServiceMultiFactorLookupManager()
+        def lookupManager = new RegisteredServiceMultiFactorLookupManager()
         def result = lookupManager.getMFARequired(service,principal)
 
       then:
@@ -73,7 +73,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
                                     (multiFactorRequiredUserListAttributeName) : multiFactorRequiredUserListAttributeValue]
 
       when:
-        def lookupManager = new JsonServiceMultiFactorLookupManager()
+        def lookupManager = new RegisteredServiceMultiFactorLookupManager()
         def result = lookupManager.getMFARequired(service,principal)
 
       then:
@@ -94,7 +94,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
                                     (multiFactorRequiredUserListAttributeName) : multiFactorRequiredUserListAttributeValue]
 
       when:
-        def lookupManager = new JsonServiceMultiFactorLookupManager()
+        def lookupManager = new RegisteredServiceMultiFactorLookupManager()
         lookupManager.setMultiFactorRequiredAttributeName(multiFactorRequiredAttributeName)
         lookupManager.setMultiFactorRequiredUserListAttributeName(multiFactorRequiredUserListAttributeName)
         def result = lookupManager.getMFARequired(service,principal)
@@ -117,7 +117,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
                                     (multiFactorRequiredUserListAttributeName) : multiFactorRequiredUserListAttributeValue]
 
       when:
-        def lookupManager = new JsonServiceMultiFactorLookupManager()
+        def lookupManager = new RegisteredServiceMultiFactorLookupManager()
         def result = lookupManager.getMFARequired(service,principal)
 
       then:
@@ -138,7 +138,7 @@ class JsonServiceMultiFactorLookupManagerTests extends Specification {
                                     (multiFactorRequiredUserListAttributeName) : multiFactorRequiredUserListAttributeValue]
 
       when:
-        def lookupManager = new JsonServiceMultiFactorLookupManager()
+        def lookupManager = new RegisteredServiceMultiFactorLookupManager()
         def result = lookupManager.getMFARequired(service,principal)
 
       then:
