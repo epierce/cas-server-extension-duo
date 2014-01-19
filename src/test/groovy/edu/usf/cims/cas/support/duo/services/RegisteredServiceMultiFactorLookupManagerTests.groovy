@@ -62,16 +62,16 @@ class RegisteredServiceMultiFactorLookupManagerTests extends Specification {
   def "Access a service that requires MFA for some users"(){
       given:
         def multiFactorRequiredAttributeName = "casMFARequired"
-        def multiFactorRequiredAttributeValue = "USER_LIST"
-        def multiFactorRequiredUserListAttributeName = "casMFARequiredUsers"
-        def multiFactorRequiredUserListAttributeValue = ["testUser","foo","bar"]
+        def multiFactorRequiredAttributeValue = "CHECK_ATTRIBUTE"
+        def multiFactorRequiredAttributeMapAttributeName = "casMFAUserAttributes"
+        def multiFactorRequiredAttributeMapAttributeValue = [uid: ["testUser", "foo", "bar"]]
         principal.id >> "testUser"
+        principal.attributes >> [uid: "testUser"]
 
         def service = new RegisteredServiceWithAttributesImpl()
         service.serviceId = "Test-MFARequiredList"
         service.extraAttributes = [ (multiFactorRequiredAttributeName) : multiFactorRequiredAttributeValue,
-                                    (multiFactorRequiredUserListAttributeName) : multiFactorRequiredUserListAttributeValue]
-
+                                    (multiFactorRequiredAttributeMapAttributeName) : multiFactorRequiredAttributeMapAttributeValue]
       when:
         def lookupManager = new RegisteredServiceMultiFactorLookupManager()
         def result = lookupManager.getMFARequired(service,principal)
@@ -83,38 +83,40 @@ class RegisteredServiceMultiFactorLookupManagerTests extends Specification {
   def "Access a service that requires MFA for some users - alternate attribute names"(){
       given:
         def multiFactorRequiredAttributeName = "requireTwoFactor"
-        def multiFactorRequiredAttributeValue = "USER_LIST"
-        def multiFactorRequiredUserListAttributeName = "TwoFactorUsers"
-        def multiFactorRequiredUserListAttributeValue = ["testUser","foo","bar"]
+        def multiFactorRequiredAttributeValue = "CHECK_ATTRIBUTE"
+        def multiFactorRequiredAttributeMapAttributeName = "DuoAttributes"
+        def multiFactorRequiredAttributeMapAttributeValue = [attributeOne: ["foo", "bar"]]
         principal.id >> "testUser"
+        principal.attributes >> [attributeOne: ["bar", "baz"]]
 
         def service = new RegisteredServiceWithAttributesImpl()
         service.serviceId = "Test-MFARequiredList-AltNames"
         service.extraAttributes = [ (multiFactorRequiredAttributeName) : multiFactorRequiredAttributeValue,
-                                    (multiFactorRequiredUserListAttributeName) : multiFactorRequiredUserListAttributeValue]
+                                    (multiFactorRequiredAttributeMapAttributeName) : multiFactorRequiredAttributeMapAttributeValue]
 
       when:
         def lookupManager = new RegisteredServiceMultiFactorLookupManager()
         lookupManager.setMultiFactorRequiredAttributeName(multiFactorRequiredAttributeName)
-        lookupManager.setMultiFactorRequiredUserListAttributeName(multiFactorRequiredUserListAttributeName)
+        lookupManager.setMultiFactorRequiredAttributeMapAttributeName(multiFactorRequiredAttributeMapAttributeName)
         def result = lookupManager.getMFARequired(service,principal)
 
       then:
         result == true
     }
 
-  def "Access a service that requires MFA for some users and the current user is not in the list"(){
+  def "Access a service that requires MFA for some users and the current user does not meet the criteria"(){
       given:
         def multiFactorRequiredAttributeName = "casMFARequired"
-        def multiFactorRequiredAttributeValue = "USER_LIST"
-        def multiFactorRequiredUserListAttributeName = "casMFARequiredUsers"
-        def multiFactorRequiredUserListAttributeValue = ["baz","foo","bar"]
+        def multiFactorRequiredAttributeValue = "CHECK_ATTRIBUTE"
+        def multiFactorRequiredAttributeMapAttributeName = "casMFAUserAttributes"
+        def multiFactorRequiredAttributeMapAttributeValue = [attributeOne: ["foo", "bar"]]
         principal.id >> "testUser"
+        principal.attributes >> [attributeTwo: ["bar", "baz"]]
 
         def service = new RegisteredServiceWithAttributesImpl()
         service.serviceId = "Test-MFARequiredList-NotRequired"
         service.extraAttributes = [ (multiFactorRequiredAttributeName) : multiFactorRequiredAttributeValue,
-                                    (multiFactorRequiredUserListAttributeName) : multiFactorRequiredUserListAttributeValue]
+                                    (multiFactorRequiredAttributeMapAttributeName) : multiFactorRequiredAttributeMapAttributeValue]
 
       when:
         def lookupManager = new RegisteredServiceMultiFactorLookupManager()
@@ -128,14 +130,15 @@ class RegisteredServiceMultiFactorLookupManagerTests extends Specification {
       given:
         def multiFactorRequiredAttributeName = "casMFARequired"
         def multiFactorRequiredAttributeValue = "YES"
-        def multiFactorRequiredUserListAttributeName = "casMFARequiredUsers"
-        def multiFactorRequiredUserListAttributeValue = ["baz","foo","bar"]
+        def multiFactorRequiredAttributeMapAttributeName = "casMFAUserAttributes"
+        def multiFactorRequiredAttributeMapAttributeValue = [attributeOne: ["foo", "bar"]]
         principal.id >> "testUser"
+        principal.attributes >> [attributeOne: ["bar", "baz"]]
 
         def service = new RegisteredServiceWithAttributesImpl()
         service.serviceId = "Test-InvalidMFA"
         service.extraAttributes = [ (multiFactorRequiredAttributeName) : multiFactorRequiredAttributeValue,
-                                    (multiFactorRequiredUserListAttributeName) : multiFactorRequiredUserListAttributeValue]
+                                    (multiFactorRequiredAttributeMapAttributeName) : multiFactorRequiredAttributeMapAttributeValue]
 
       when:
         def lookupManager = new RegisteredServiceMultiFactorLookupManager()
