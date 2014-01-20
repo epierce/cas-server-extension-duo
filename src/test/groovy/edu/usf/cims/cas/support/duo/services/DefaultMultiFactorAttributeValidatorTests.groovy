@@ -32,10 +32,38 @@ class DefaultMultiFactorAttributeValidatorTests extends Specification {
         result == true
   }
 
+  def "Values differ in case"(){
+      given:
+        def serviceAttributes = [attributeone: "FOO"]
+        def userAttributes = [attributeone: "foo"]
+
+
+      when:
+        def validator = new DefaultMultiFactorAttributeValidator()
+        def result = validator.check(serviceAttributes,userAttributes)
+
+      then:
+        result == true
+  }
+
+  def "Keys differ in case"(){
+      given:
+        def serviceAttributes = [ATTRIBUTEONE: "foo"]
+        def userAttributes = [attributeone: "foo"]
+
+
+      when:
+        def validator = new DefaultMultiFactorAttributeValidator()
+        def result = validator.check(serviceAttributes,userAttributes)
+
+      then:
+        result == true
+  }
+
   def "One key and value in common (mutliple user values)"(){
       given:
         def serviceAttributes = [attributeOne: "foo"]
-        def userAttributes = [attributeOne: ["foo","bar"]]
+        def userAttributes = [attributeOne: ["FOO","bar"]]
 
 
       when:
@@ -145,7 +173,7 @@ class DefaultMultiFactorAttributeValidatorTests extends Specification {
 
   def "Multiple keys in both lists and one value in list in common"(){
       given:
-        def serviceAttributes = [attributeOne: ["foo", "bar"],  attributeTwo: ["baz", "blah"]]
+        def serviceAttributes = [attributeOne: ["foo", "BAR"],  attributeTwo: ["baz", "blah"]]
         def userAttributes = [attributeTwo: ["test", "bar"], attributeOne: ["test", "bar"] ]
 
       when:

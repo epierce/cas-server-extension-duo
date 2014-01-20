@@ -8,14 +8,44 @@ class DefaultMultiFactorAttributeValidator implements MultiFactorAttributeValida
 
   @Override
   boolean check(Map serviceAttributes, Map userAttributes){
-    serviceAttributes.keySet().intersect(userAttributes.keySet()).any {
-      if(serviceAttributes[it] instanceof Collection){
-        return serviceAttributes[it].intersect([userAttributes[it]].flatten())
+    //Convert service attribute map keys/values to all lowercase
+    def serviceAttrCleaned = [:]
+    serviceAttributes.keySet().each {
+      if (serviceAttributes[it] instanceof Collection) {
+        serviceAttrCleaned[it.toLowerCase()] = []
+        serviceAttributes[it].each { val ->
+          (serviceAttrCleaned[it.toLowerCase()]).add(val.toLowerCase())
+        }
       } else {
-        if(userAttributes[it] instanceof Collection){
-          return userAttributes[it].intersect([serviceAttributes[it]].flatten())
+        serviceAttrCleaned[it.toLowerCase()] = (serviceAttributes[it] as String).toLowerCase()
+      }
+    }
+
+    LOGGER.debug("Cleaned up service attributes: {}", serviceAttrCleaned)
+
+    //Now do the same for the user attributes
+    def userAttrCleaned = [:]
+    userAttributes.keySet().each {
+      if (userAttributes[it] instanceof Collection) {
+        userAttrCleaned[it.toLowerCase()] = []
+        userAttributes[it].each { val ->
+          (userAttrCleaned[it.toLowerCase()]).add(val.toLowerCase())
+        }
+      } else {
+        userAttrCleaned[it.toLowerCase()] = (userAttributes[it] as String).toLowerCase()
+      }
+    }
+
+    LOGGER.debug("Cleaned up user attributes: {}", userAttrCleaned)
+
+    serviceAttrCleaned.keySet().intersect(userAttrCleaned.keySet()).any {
+      if(serviceAttrCleaned[it] instanceof Collection){
+        return serviceAttrCleaned[it].intersect([userAttrCleaned[it]].flatten())
+      } else {
+        if(userAttrCleaned[it] instanceof Collection){
+          return userAttrCleaned[it].intersect([serviceAttrCleaned[it]].flatten())
         } else {
-          return serviceAttributes[it].equalsIgnoreCase(userAttributes[it])
+          return serviceAttrCleaned[it].equalsIgnoreCase(userAttrCleaned[it])
         }
       }
     }
