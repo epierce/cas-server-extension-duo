@@ -31,8 +31,8 @@ import java.util.Map;
  */
 public class RegisteredServiceMultiFactorLookupManager implements ServiceMultiFactorLookupManager {
 
-    private String multiFactorRequiredAttributeName = "casMFARequired";
-    private String multiFactorRequiredAttributeMapAttributeName = "casMFAUserAttributes";
+    private String mfaRequiredKey = "casMFARequired";
+    private String mfaRequiredAttributesKey = "casMFAUserAttributes";
     private MultiFactorAttributeValidator mfaValidator = new DefaultMultiFactorAttributeValidator();
 
     private static final String REQUIRE_ALL = "ALL";
@@ -45,7 +45,7 @@ public class RegisteredServiceMultiFactorLookupManager implements ServiceMultiFa
     public boolean getMFARequired(RegisteredService registeredService, Principal principal) {
         if (registeredService instanceof RegisteredServiceWithAttributes) {
             RegisteredServiceWithAttributes registeredServiceWithAttributes = (RegisteredServiceWithAttributes)registeredService;
-            String result = (String) registeredServiceWithAttributes.getExtraAttributes().get(this.multiFactorRequiredAttributeName);
+            String result = (String) registeredServiceWithAttributes.getExtraAttributes().get(this.mfaRequiredKey);
 
             if(result == null){
               LOGGER.debug("No MultiFactor requirement found for service {}", registeredServiceWithAttributes.getServiceId());
@@ -59,7 +59,7 @@ public class RegisteredServiceMultiFactorLookupManager implements ServiceMultiFa
                 return true;
             } else if (result.equalsIgnoreCase(REQUIRE_ATTRIBUTE)) {
                 //Compare the user's attributes to the list from the service registry
-                Map mfaAttributeMap = getMFARequiredAttributeMap(registeredService);
+                Map mfaAttributeMap = getMfaRequiredAttributeMap(registeredService);
                 Map userAttributeMap = principal.getAttributes();
                 LOGGER.debug("MultiFactor required for service {} with attributes [{}]. {} has attributes [{}]", registeredServiceWithAttributes.getServiceId(), mfaAttributeMap.toString(), principal.getId(), userAttributeMap.toString());
                 return this.mfaValidator.check(mfaAttributeMap, userAttributeMap);
@@ -71,29 +71,29 @@ public class RegisteredServiceMultiFactorLookupManager implements ServiceMultiFa
         return false;
     }
 
-    private Map getMFARequiredAttributeMap(RegisteredService registeredService) {
+    private Map getMfaRequiredAttributeMap(RegisteredService registeredService) {
         if (registeredService instanceof RegisteredServiceWithAttributes) {
             RegisteredServiceWithAttributes registeredServiceWithAttributes = (RegisteredServiceWithAttributes)registeredService;
-            return (Map) registeredServiceWithAttributes.getExtraAttributes().get(this.multiFactorRequiredAttributeMapAttributeName);
+            return (Map) registeredServiceWithAttributes.getExtraAttributes().get(this.mfaRequiredAttributesKey);
         }
 
         return null;
     }
 
-    public String getMultiFactorRequiredAttributeName() {
-        return multiFactorRequiredAttributeName;
+    public String getMfaRequiredKey() {
+        return mfaRequiredKey;
     }
 
-    public void setMultiFactorRequiredAttributeName(String multiFactorRequiredAttributeName) {
-        this.multiFactorRequiredAttributeName = multiFactorRequiredAttributeName;
+    public void setMfaRequiredKey(String mfaRequiredKey) {
+        this.mfaRequiredKey = mfaRequiredKey;
     }
 
-    public String getMultiFactorRequiredAttributeMapAttributeName() {
-        return multiFactorRequiredAttributeMapAttributeName;
+    public String getMfaRequiredAttributesKey() {
+        return mfaRequiredAttributesKey;
     }
 
-    public void setMultiFactorRequiredAttributeMapAttributeName(String multiFactorRequiredAttributeMapAttributeName) {
-        this.multiFactorRequiredAttributeMapAttributeName = multiFactorRequiredAttributeMapAttributeName;
+    public void setMfaRequiredAttributesKey(String mfaRequiredAttributesKey) {
+        this.mfaRequiredAttributesKey = mfaRequiredAttributesKey;
     }
 
     public void setMultiFactorAttributeValidator(MultiFactorAttributeValidator validator){

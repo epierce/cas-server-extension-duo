@@ -79,7 +79,7 @@ class AttributeUserMultiFactorLookupManagerTests extends Specification {
 
       when:
         def manager = new AttributeUserMultiFactorLookupManager()
-        manager.multiFactorAttributeName = "requireDuo"
+        manager.mfaRequiredKey = "requireDuo"
         def result = manager.getMFARequired(principal)
 
       then:
@@ -93,8 +93,8 @@ class AttributeUserMultiFactorLookupManagerTests extends Specification {
 
       when:
         def manager = new AttributeUserMultiFactorLookupManager()
-        manager.multiFactorAttributeName = "requireDuo"
-        manager.multiFactorAttributeValue = "yup"
+        manager.mfaRequiredKey = "requireDuo"
+        manager.mfaRequiredValue = "yup"
         def result = manager.getMFARequired(principal)
 
       then:

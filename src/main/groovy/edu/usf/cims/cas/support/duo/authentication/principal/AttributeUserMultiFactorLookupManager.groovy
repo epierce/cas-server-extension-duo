@@ -17,8 +17,8 @@ class AttributeUserMultiFactorLookupManager implements UserMultiFactorLookupMana
   private static final Logger LOGGER = LoggerFactory.getLogger(AttributeUserMultiFactorLookupManager.class)
 
   /** The default value to compare to. **/
-  def multiFactorAttributeName = "casmfarequired";
-  def multiFactorAttributeValue = "yes";
+  def mfaRequiredKey = "casMFARequired".toLowerCase()
+  def mfaRequiredValue = "YES".toLowerCase()
 
   @Override
   boolean getMFARequired(Principal principal) {
@@ -40,29 +40,29 @@ class AttributeUserMultiFactorLookupManager implements UserMultiFactorLookupMana
 
     LOGGER.debug("Cleaned up user attributes: {}", userAttrCleaned)
 
-    if (userAttrCleaned[this.multiFactorAttributeName] == null) {
-      LOGGER.debug("No attribute value for [{}] for user [{}]", this.multiFactorAttributeName, principal.id)
+    if (userAttrCleaned[this.mfaRequiredKey] == null) {
+      LOGGER.debug("No attribute value for [{}] for user [{}]", this.mfaRequiredKey, principal.id)
       return false
-    } else if (userAttrCleaned[this.multiFactorAttributeName] instanceof Collection){
-      return userAttrCleaned[this.multiFactorAttributeName].contains(this.multiFactorAttributeValue)
+    } else if (userAttrCleaned[this.mfaRequiredKey] instanceof Collection){
+      return userAttrCleaned[this.mfaRequiredKey].contains(this.mfaRequiredValue)
     } else {
-      return userAttrCleaned[this.multiFactorAttributeName].equalsIgnoreCase(this.multiFactorAttributeValue)
+      return userAttrCleaned[this.mfaRequiredKey].equalsIgnoreCase(this.mfaRequiredValue)
     }
   }
 
-  String getMultiFactorAttributeName() {
-    return multiFactorAttributeName
+  String getMfaRequiredKey() {
+    return mfaRequiredKey
   }
 
-  void setMultiFactorAttributeName(String multiFactorAttributeName) {
-    this.multiFactorAttributeName = multiFactorAttributeName.toLowerCase()
+  void setMfaRequiredKey(String mfaRequiredKey) {
+    this.mfaRequiredKey = mfaRequiredKey.toLowerCase()
   }
 
-  String getMultiFactorAttributeValue() {
-    return multiFactorAttributeValue
+  String getMfaRequiredValue() {
+    return mfaRequiredValue
   }
 
-  void setMultiFactorAttributeValue(String multiFactorAttributeValue) {
-    this.multiFactorAttributeValue = multiFactorAttributeValue.toLowerCase()
+  void setMfaRequiredValue(String mfaRequiredValue) {
+    this.mfaRequiredValue = mfaRequiredValue.toLowerCase()
   }
 }
