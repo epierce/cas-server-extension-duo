@@ -6,21 +6,33 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
-    <bean id="serviceLookupManager" class="edu.ucr.cnc.cas.support.duo.services.JsonServiceMultiFactorLookupManager">
-        <property name="multiFactorRequiredAttributeName" value="RequireTwoFactor"/>
-        <property name="multiFactorRequiredUserListAttributeName" value="TwoFactorUsers"/>
+    <bean id="serviceLookupManager"
+        class="edu.usf.cims.cas.support.duo.services.RegisteredServiceMultiFactorLookupManager">
+        <property name="mfaRequiredKey" value="RequireTwoFactor"/>
+        <property name="mfaRequiredAttributesKey" value="TwoFactorUsers"/>
     </bean>
 
-    <bean id="userLookupManager" class="edu.ucr.cnc.cas.support.duo.authentication.principal.LdapUserMultiFactorLookupManager">
+    <bean id="userLookupManager"
+        class="edu.usf.cims.cas.support.duo.authentication.principal.AttributeUserMultiFactorLookup">
+        <property name="mfaRequiredKey" value="RequireTwoFactorForAllServices"/>
+        <property name="mfaRequiredValue" value="YES"/>
+    </bean>
+
+<!--
+    This Lookup Manager searches LDAP to get attributes for the user
+    <bean id="userLookupManager"
+        class="edu.ucr.cnc.cas.support.duo.authentication.principal.LdapUserMultiFactorLookupManager">
         <property name="contextSource" ref="LdapSearchcontext"/>
         <property name="filter" value="(uid=%u)"/>
         <property name="searchBase" value="dc=example,dc=edu"/>
         <property name="multiFactorAttributeName" value="casMFARequired"/>
     </bean>
-
+-->
     <bean id="determineIfTwoFactorAction" class="edu.ucr.cnc.cas.support.duo.web.flow.DetermineIfTwoFactorAction">
-        <property name="serviceMultiFactorLookupManager" ref="serviceLookupManager"/>
+        <property name="ticketRegistry" ref="ticketRegistry"/>
         <property name="servicesManager" ref="servicesManager"/>
+        <property name="serviceMultiFactorLookupManager" ref="serviceLookupManager"/>
+        <property name="userMultiFactorLookupManager" ref="userLookupManager"/>
     </bean>
 
     <bean id="checkLoaOfTicketGrantingTicket" class="edu.ucr.cnc.cas.support.duo.web.flow.CheckLoaOfTicketGrantingTicket">
