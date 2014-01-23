@@ -9,11 +9,11 @@
     <bean id="serviceLookupManager"
         class="edu.usf.cims.cas.support.duo.services.RegisteredServiceMultiFactorLookupManager">
         <property name="mfaRequiredKey" value="RequireTwoFactor"/>
-        <property name="mfaRequiredAttributesKey" value="TwoFactorUsers"/>
+        <property name="mfaRequiredAttributesKey" value="TwoFactorAttributes"/>
     </bean>
 
     <bean id="userLookupManager"
-        class="edu.usf.cims.cas.support.duo.authentication.principal.AttributeUserMultiFactorLookup">
+        class="edu.usf.cims.cas.support.duo.authentication.principal.AttributeUserMultiFactorLookupManager">
         <property name="mfaRequiredKey" value="RequireTwoFactorForAllServices"/>
         <property name="mfaRequiredValue" value="YES"/>
     </bean>
