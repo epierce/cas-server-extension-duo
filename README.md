@@ -1,7 +1,7 @@
 cas-server-extension-duo
 ========================
 
-This module is based on https://github.com/highlnd/cas-overlay-duo  The goal is to extract the code/configuration required to use Duo for two-factor authentication and package it into a module that can be easily included in a CAS deployment. 
+This module is based on https://github.com/highlnd/cas-overlay-duo  The goal is to extract the code/configuration required to use Duo for two-factor authentication and package it into a module that can be easily included in a CAS deployment.
 
 [DuoSecurity](https://www.duosecurity.com/) provides a hosted service for two-factor authentication using mobile devices, landline phones and hardware tokens.  They provide clients for various applications (VPN, SSH, etc) but an integration for CAS wasn't available.  [Mike Kennedy](https://github.com/highlnd) developed the integration using the [Java DuoWeb Client](https://github.com/duosecurity/duo_java).
 
@@ -19,9 +19,9 @@ Signup for a free account on Duo's website: http://duosecurity.com and follow th
 The wiki article on how to configure it is [here](https://wiki.jasig.org/display/CASUM/Best+Practice+-+Setting+Up+CAS+Locally+using+the+Maven2+WAR+Overlay+Method)
 
 ### Use the JSON Service Registry
-You'll need to include the [Unicon cas-addons module](https://github.com/Unicon/cas-addons/tree/v1.10) in your Maven overlay.  In particular, you must use the [JSON Service Registry](https://github.com/Unicon/cas-addons/wiki/Configuring%20JSON%20Service%20Registry) to add Duo authentication.  The `extraAttributes` stored with each service are used to determine which services and users require two-factor authentication.  
+You'll need to include the [Unicon cas-addons module](https://github.com/Unicon/cas-addons/tree/v1.10) in your Maven overlay.  In particular, you must use the [JSON Service Registry](https://github.com/Unicon/cas-addons/wiki/Configuring%20JSON%20Service%20Registry) to add Duo authentication.  The `extraAttributes` stored with each service are used to determine which services and users require two-factor authentication.
 
-I'll also take a minute to plug one of my other projects: [cas-json-tool](https://github.com/epierce/cas-json-tool)  It's a command-line program for managing the JSON file and includes options for creating and maintaining the service attributes necessary to use Duo authentication.   
+I'll also take a minute to plug one of my other projects: [cas-json-tool](https://github.com/epierce/cas-json-tool)  It's a command-line program for managing the JSON file and includes options for creating and maintaining the service attributes necessary to use Duo authentication.
 
 ### Clone the `cas-server-extension-duo` project
 ```
@@ -29,7 +29,7 @@ git clone https://github.com/epierce/cas-server-extension-duo.git
 ```
 
 ### Build the server extension
-```         
+```
 cd cas-server-extension-duo
 mvn clean package install
 ```
@@ -41,12 +41,12 @@ Add the following block to the `pom.xml` in your CAS overlay
 <dependency>
   <groupId>edu.usf.cims</groupId>
   <artifactId>cas-server-extension-duo</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 
 ### Configure Authentication
-First, add the `DuoAuthenticationHandler` bean to the list of authentication handlers in `deployerConfigContext.xml`: 
+First, add the `DuoAuthenticationHandler` bean to the list of authentication handlers in `deployerConfigContext.xml`:
 
 ```
 <property name="authenticationHandlers">
@@ -56,8 +56,8 @@ First, add the `DuoAuthenticationHandler` bean to the list of authentication han
       p:duoConfiguration-ref="duoConfiguration" />
   </list>
  </property>
-```    
-    
+```
+
 * **duoConfiguration-ref**: A reference to the bean that hold the configuration information for Duo (you'll create this later).
 
 You'll also need to add `DuoCredentialsToPrincipalResolver` to the list of principal resolvers:
@@ -72,7 +72,7 @@ You'll also need to add `DuoCredentialsToPrincipalResolver` to the list of princ
 ```
 
 ### Configure Authentication Metadata Population
-In order to determine if the user's current authentication is sufficient to access a new service (has he logged in with duo or not), we need to add some information onto the user's `Authentication` object.  
+In order to determine if the user's current authentication is sufficient to access a new service (has he logged in with duo or not), we need to add some information onto the user's `Authentication` object.
 
 ```
     <property name="authenticationMetaDataPopulators">
@@ -83,7 +83,7 @@ In order to determine if the user's current authentication is sufficient to acce
     </property>
 ```
 ___
-        
+
 ### twoFactorCasConfiguration.xml
 
 There are two new files in `WEB-INF/spring-configuration` that need to be configured for your environment.  The first is `twoFactorCasConfiguration.xml`.  Here is an example:
@@ -135,10 +135,10 @@ There are two new files in `WEB-INF/spring-configuration` that need to be config
 * `mfaRequiredKey` - Attribute that contains what user population (**ALL**, **NONE**, or **CHECK_ATTRIBUTE**) will be required to use two-factor auth. (default: casMFARequired)
 * `mfaRequiredAttributesKey` - This attribute is used when the service's `casMFARequired` attribute equals **CHECK_ATTRIBUTE**.  It contains one or more attributes/values that are compared to the user's attributes to determine if two-factor authentication is required.   (default: casMFAUserAttributes)
 
-Example service entry requiring any user who is a member of **EITHER** the `admins` or `power-users` groups to use Duo authentication.  All other users could login with just username/password credentials. 
+Example service entry requiring any user who is a member of **EITHER** the `admins` or `power-users` groups to use Duo authentication.  All other users could login with just username/password credentials.
 
 ```JSON
-{                          
+{
     "services": [
         {
             "enabled": true,
@@ -147,7 +147,7 @@ Example service entry requiring any user who is a member of **EITHER** the `admi
             "id": 1,
             "extraAttributes": {
                 "casMFARequired": "CHECK_ATTRIBUTE",
-                "casMFAUserAttributes": { 
+                "casMFAUserAttributes": {
                   "memberOf": ["admins", "power-users"]
                 }
             },
@@ -171,8 +171,8 @@ Example service entry requiring any user who is a member of **EITHER** the `admi
 ####userLookupManager
 The `AttributeUserMultiFactorLookupManager` looks for a specific attribute/value pair in the user's principal to determine is they are required to use Duo authentication for **all** CAS services.
 
-* `mfaRequiredKey` - attribute to return from search (default: casMFARequired) 
-* `mfaRequiredValue` - The value that, if found, will require the user to authenticate with two-factor for all services.  (default: YES)   
+* `mfaRequiredKey` - attribute to return from search (default: casMFARequired)
+* `mfaRequiredValue` - The value that, if found, will require the user to authenticate with two-factor for all services.  (default: YES)
 
 ####determineIfTwoFactorAction
 `DetermineIfTwoFactorAction` is a Spring Webflow action that determines if two-factor authentication is required for the current login webflow.
@@ -198,7 +198,7 @@ If you don't want to use one of these lookups, just comment out the bean definit
 ___
 
 ### duoConfiguration.xml
-This file in `WEB-INF/spring-configuration` configures the use of the DuoWeb Java client.  
+This file in `WEB-INF/spring-configuration` configures the use of the DuoWeb Java client.
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -215,7 +215,7 @@ This file in `WEB-INF/spring-configuration` configures the use of the DuoWeb Jav
         <constructor-arg index="2" value="${duo.secretKey}"/>
         <constructor-arg index="3" value="${duo.applicationKey}"/>
     </bean>
-    
+
     <bean id="duoUtils" class="edu.ucr.cnc.cas.support.duo.util.DuoUtils">
         <property name="duoConfiguration" ref="duoConfiguration"/>
     </bean>
