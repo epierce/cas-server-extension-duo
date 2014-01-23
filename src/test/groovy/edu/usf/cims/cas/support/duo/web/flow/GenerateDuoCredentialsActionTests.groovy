@@ -24,7 +24,7 @@ class GenerateDuoCredentialsActionTests extends Specification {
   def sfa_tgt = Mock(TicketGrantingTicket)
   def requestContext = Mock(RequestContext)
   def ticketRegistry = Mock(TicketRegistry)
-  
+
   /**
   * configure mocked objects
   **/
@@ -41,9 +41,6 @@ class GenerateDuoCredentialsActionTests extends Specification {
     sfa_authentication.principal >> sfa_principal
     sfa_principal.id  >> "testUser"
     sfa_authentication.attributes >> [(CasConstants.LOA_ATTRIBUTE): CasConstants.LOA_SF]
-
-    
-
   }
 
   def "Create a new DuoCredential during intial login"(){
@@ -145,5 +142,4 @@ class GenerateDuoCredentialsActionTests extends Specification {
     then:
       result == "error"
   }
-   
 }

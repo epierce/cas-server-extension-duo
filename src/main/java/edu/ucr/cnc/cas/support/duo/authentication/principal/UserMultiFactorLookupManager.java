@@ -1,4 +1,5 @@
 package edu.ucr.cnc.cas.support.duo.authentication.principal;
+import org.jasig.cas.authentication.principal.Principal;
 
 /**
  * Object used by Spring action that looks up whether a second factor is required.
@@ -8,5 +9,5 @@ package edu.ucr.cnc.cas.support.duo.authentication.principal;
  *
  */
 public interface UserMultiFactorLookupManager {
-    public boolean getMFARequired(String username);
+    public boolean getMFARequired(Principal principal);
 }

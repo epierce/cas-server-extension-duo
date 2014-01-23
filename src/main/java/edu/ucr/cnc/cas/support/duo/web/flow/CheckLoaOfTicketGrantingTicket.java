@@ -56,7 +56,7 @@ public class CheckLoaOfTicketGrantingTicket extends AbstractAction {
         // Get the registered service from flow scope
         Service service = (Service)context.getFlowScope().get("service");
         RegisteredService registeredService = this.servicesManager.findServiceBy(service);
-        boolean serviceMultiFactorRequired = this.serviceMultiFactorLookupManager.getMFARequired(registeredService, ticketGrantingTicket.getAuthentication().getPrincipal().getId());
+        boolean serviceMultiFactorRequired = this.serviceMultiFactorLookupManager.getMFARequired(registeredService, ticketGrantingTicket.getAuthentication().getPrincipal());
 
         // Get the LOA of the current TGT
         String tgtLOA = (String)ticketGrantingTicket.getAuthentication().getAttributes().get(CasConstants.LOA_ATTRIBUTE);
