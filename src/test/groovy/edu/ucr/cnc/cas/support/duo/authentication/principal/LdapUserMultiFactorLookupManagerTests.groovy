@@ -4,6 +4,7 @@ import spock.lang.Specification
 import com.github.trevershick.test.ldap.LdapServerResource
 import com.github.trevershick.test.ldap.annotations.*
 import org.springframework.ldap.core.support.LdapContextSource
+import org.jasig.cas.authentication.principal.Principal
 
 //The LDAP data we will use for the tests
 @LdapConfiguration(
@@ -19,7 +20,7 @@ import org.springframework.ldap.core.support.LdapContextSource
           @LdapAttribute(name="cn",value="Test User1"),
           @LdapAttribute(name="sn",value="User1"),
           @LdapAttribute(name="uid",value="testUser1"),
-          //Use employeeType to store the MFA requirement so we don't have to create a custom attribute 
+          //Use employeeType to store the MFA requirement so we don't have to create a custom attribute
           @LdapAttribute(name="employeeType",value="YES")
         ]
       ),
@@ -30,7 +31,7 @@ import org.springframework.ldap.core.support.LdapContextSource
           @LdapAttribute(name="cn",value="Test User2"),
           @LdapAttribute(name="sn",value="User2"),
           @LdapAttribute(name="uid",value="testUser2"),
-          //Use employeeType to store the MFA requirement so we don't have to create a custom attribute 
+          //Use employeeType to store the MFA requirement so we don't have to create a custom attribute
           @LdapAttribute(name="employeeType",value="NO")
         ]
       ),
@@ -50,16 +51,17 @@ import org.springframework.ldap.core.support.LdapContextSource
           @LdapAttribute(name="cn",value="Test User4"),
           @LdapAttribute(name="sn",value="User4"),
           @LdapAttribute(name="uid",value="testUser4"),
-          //Use employeeType to store the MFA requirement so we don't have to create a custom attribute 
+          //Use employeeType to store the MFA requirement so we don't have to create a custom attribute
           //Use a custom value
           @LdapAttribute(name="employeeType",value="Use_MFA")
         ]
-      )  
+      )
     ]
 )
 class LdapUserMultiFactorLookupManagerTests extends Specification {
 
   def server
+  def principal = Mock(Principal)
 
   def setup() {
     //Create in-memory LDAP server
@@ -72,7 +74,7 @@ class LdapUserMultiFactorLookupManagerTests extends Specification {
 
     def "Login with a user that requires MFA"(){
       given:
-        def username = 'testUser1'
+        principal.id >> "testUser1"
         def searchFilter = '(uid=%u)'
         def multiFactorAttributeName = 'employeeType'
         def bindDn = 'uid=admin'
@@ -94,7 +96,7 @@ class LdapUserMultiFactorLookupManagerTests extends Specification {
         lookupManager.searchBase = searchBase
         lookupManager.multiFactorAttributeName = multiFactorAttributeName
 
-        def result = lookupManager.getMFARequired(username)
+        def result = lookupManager.getMFARequired(principal)
 
       then:
         result == true
@@ -102,7 +104,7 @@ class LdapUserMultiFactorLookupManagerTests extends Specification {
 
   def "Login with a user that does not require MFA"(){
       given:
-        def username = 'testUser2'
+        principal.id >> "testUser2"
         def searchFilter = '(uid=%u)'
         def multiFactorAttributeName = 'employeeType'
         def bindDn = 'uid=admin'
@@ -124,7 +126,7 @@ class LdapUserMultiFactorLookupManagerTests extends Specification {
         lookupManager.searchBase = searchBase
         lookupManager.multiFactorAttributeName = multiFactorAttributeName
 
-        def result = lookupManager.getMFARequired(username)
+        def result = lookupManager.getMFARequired(principal)
 
       then:
         result == false
@@ -132,7 +134,7 @@ class LdapUserMultiFactorLookupManagerTests extends Specification {
 
   def "Login with a user that does not have a MFA attribute set"(){
       given:
-        def username = 'testUser3'
+        principal.id >> 'testUser3'
         def searchFilter = '(uid=%u)'
         def multiFactorAttributeName = 'employeeType'
         def bindDn = 'uid=admin'
@@ -154,7 +156,7 @@ class LdapUserMultiFactorLookupManagerTests extends Specification {
         lookupManager.searchBase = searchBase
         lookupManager.multiFactorAttributeName = multiFactorAttributeName
 
-        def result = lookupManager.getMFARequired(username)
+        def result = lookupManager.getMFARequired(principal)
 
       then:
         result == false
@@ -162,7 +164,7 @@ class LdapUserMultiFactorLookupManagerTests extends Specification {
 
     def "Login with a user that requires MFA - alternate value"(){
       given:
-        def username = 'testUser4'
+        principal.id >> 'testUser4'
         def searchFilter = '(uid=%u)'
         def multiFactorAttributeName = 'employeeType'
         def multiFactorAttributeValue = 'Use_MFA'
@@ -186,7 +188,7 @@ class LdapUserMultiFactorLookupManagerTests extends Specification {
         lookupManager.multiFactorAttributeName = multiFactorAttributeName
         lookupManager.multiFactorAttributeValue = multiFactorAttributeValue
 
-        def result = lookupManager.getMFARequired(username)
+        def result = lookupManager.getMFARequired(principal)
 
       then:
         result == true

@@ -2,7 +2,7 @@
   <name>Jasig Central Authentication Service DuoSecurity Two-Factor Authentication</name>
   <groupId>edu.usf.cims</groupId>
   <artifactId>cas-server-extension-duo</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <modelVersion>4.0.0</modelVersion>
   <inceptionYear>2013</inceptionYear>
@@ -46,22 +46,22 @@
       <roles>
           <role>Developer</role>
       </roles>
-    </developer>    
+    </developer>
   </developers>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <cas.version>3.5.2</cas.version>
-    <cas-addons.version>1.7</cas-addons.version>
+    <cas-addons.version>1.10</cas-addons.version>
     <servlet.version>2.5</servlet.version>
     <junit.version>4.11</junit.version>
-    <statsd.version>2.0.0</statsd.version>
     <json.version>20090211</json.version>
     <spock.version>0.7-groovy-2.0</spock.version>
+    <groovy.version>2.1.6</groovy.version>
     <ldap-test-utils.version>1.0.1</ldap-test-utils.version>
   </properties>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.jasig.cas</groupId>
@@ -73,12 +73,6 @@
       <groupId>org.jasig.cas</groupId>
       <artifactId>cas-server-support-ldap</artifactId>
       <version>${cas.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.timgroup</groupId>
-      <artifactId>java-statsd-client</artifactId>
-      <version>${statsd.version}</version>
     </dependency>
 
     <dependency>
@@ -116,7 +110,7 @@
     </dependency>
 
   </dependencies>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -171,6 +165,30 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <compilerId>groovy-eclipse-compiler</compilerId>
+          <verbose>false</verbose>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-eclipse-compiler</artifactId>
+            <version>2.8.0-01</version>
+          </dependency>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-eclipse-batch</artifactId>
+            <version>2.1.5-03</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+      <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.12.1</version>
@@ -198,7 +216,6 @@
           </execution>
         </executions>
       </plugin>
-    
     </plugins>
   </build>
 </project>

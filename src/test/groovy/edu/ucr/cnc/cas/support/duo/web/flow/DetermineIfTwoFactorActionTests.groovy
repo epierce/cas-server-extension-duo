@@ -3,6 +3,7 @@ package edu.ucr.cnc.cas.support.duo.web.flow
 import spock.lang.Specification
 import org.jasig.cas.authentication.principal.WebApplicationService
 import org.jasig.cas.services.ServicesManager
+import org.jasig.cas.ticket.registry.TicketRegistry
 import org.jasig.cas.services.UnauthorizedServiceException
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials
 import org.jasig.cas.authentication.principal.Principal
@@ -13,12 +14,17 @@ import edu.ucr.cnc.cas.support.duo.authentication.principal.UserMultiFactorLooku
 import net.unicon.cas.addons.serviceregistry.RegisteredServiceWithAttributesImpl
 import org.springframework.webflow.execution.RequestContext
 import org.springframework.webflow.core.collection.LocalAttributeMap
+import edu.ucr.cnc.cas.support.duo.CasConstants
 
 class DetermineIfTwoFactorActionTests extends Specification {
 
   /**
    * Mock objects that will be used in all tests
    */
+  def ticketRegistry = Mock(TicketRegistry)
+  def sfa_tgt = Mock(TicketGrantingTicket)
+  def sfa_authentication = Mock(Authentication)
+  def sfa_principal = Mock(Principal)
   def authentication = Mock(Authentication)
   def webApplicationService = Mock(WebApplicationService)
   def requestContext = Mock(RequestContext)
@@ -36,7 +42,15 @@ class DetermineIfTwoFactorActionTests extends Specification {
 
     //Service URL the user is accessing
     webApplicationService.id >> "http://example.com/service"
-    requestContext.getFlowScope() >> new LocalAttributeMap([credentials: credentials])
+    requestContext.getFlowScope() >> new LocalAttributeMap([ticketGrantingTicketId: "test-tgt-sfa"])
+    requestContext.getRequestScope() >> new LocalAttributeMap([ticketGrantingTicketId: "test-tgt-sfa"])
+
+    ticketRegistry.getTicket('test-tgt-sfa', TicketGrantingTicket) >> sfa_tgt
+    sfa_tgt.authentication >> sfa_authentication
+    sfa_authentication.principal >> sfa_principal
+    sfa_principal.id  >> "testUser1"
+    sfa_principal.attributes >> [attributeOne: "value1"]
+    sfa_authentication.attributes >> [(CasConstants.LOA_ATTRIBUTE): CasConstants.LOA_SF]
   }
 
   def "Either ServiceLookupManager or UserLookupManager are required"(){
@@ -50,6 +64,7 @@ class DetermineIfTwoFactorActionTests extends Specification {
 
     when:
       def determineIfTwoFactor = new DetermineIfTwoFactorAction()
+      determineIfTwoFactor.ticketRegistry = ticketRegistry
       def result = determineIfTwoFactor.doExecute(requestContext)
 
     then:
@@ -69,6 +84,7 @@ class DetermineIfTwoFactorActionTests extends Specification {
 
     when:
       def determineIfTwoFactor = new DetermineIfTwoFactorAction()
+      determineIfTwoFactor.ticketRegistry = ticketRegistry
       determineIfTwoFactor.servicesManager = servicesManager
       determineIfTwoFactor.serviceMultiFactorLookupManager = serviceMultiFactorLookupManager
       def result = determineIfTwoFactor.doExecute(requestContext)
@@ -90,6 +106,7 @@ class DetermineIfTwoFactorActionTests extends Specification {
 
     when:
       def determineIfTwoFactor = new DetermineIfTwoFactorAction()
+      determineIfTwoFactor.ticketRegistry = ticketRegistry
       determineIfTwoFactor.servicesManager = servicesManager
       determineIfTwoFactor.serviceMultiFactorLookupManager = serviceMultiFactorLookupManager
       def result = determineIfTwoFactor.doExecute(requestContext)
@@ -112,6 +129,7 @@ class DetermineIfTwoFactorActionTests extends Specification {
 
     when:
       def determineIfTwoFactor = new DetermineIfTwoFactorAction()
+      determineIfTwoFactor.ticketRegistry = ticketRegistry
       determineIfTwoFactor.servicesManager = servicesManager
       determineIfTwoFactor.serviceMultiFactorLookupManager = serviceMultiFactorLookupManager
       determineIfTwoFactor.userMultiFactorLookupManager = userMultiFactorLookupManager
@@ -135,6 +153,7 @@ class DetermineIfTwoFactorActionTests extends Specification {
 
     when:
       def determineIfTwoFactor = new DetermineIfTwoFactorAction()
+      determineIfTwoFactor.ticketRegistry = ticketRegistry
       determineIfTwoFactor.servicesManager = servicesManager
       determineIfTwoFactor.serviceMultiFactorLookupManager = serviceMultiFactorLookupManager
       determineIfTwoFactor.userMultiFactorLookupManager = userMultiFactorLookupManager
@@ -158,6 +177,7 @@ class DetermineIfTwoFactorActionTests extends Specification {
 
     when:
       def determineIfTwoFactor = new DetermineIfTwoFactorAction()
+      determineIfTwoFactor.ticketRegistry = ticketRegistry
       determineIfTwoFactor.servicesManager = servicesManager
       determineIfTwoFactor.serviceMultiFactorLookupManager = serviceMultiFactorLookupManager
       determineIfTwoFactor.userMultiFactorLookupManager = userMultiFactorLookupManager
@@ -181,6 +201,7 @@ class DetermineIfTwoFactorActionTests extends Specification {
 
     when:
       def determineIfTwoFactor = new DetermineIfTwoFactorAction()
+      determineIfTwoFactor.ticketRegistry = ticketRegistry
       determineIfTwoFactor.servicesManager = servicesManager
       determineIfTwoFactor.serviceMultiFactorLookupManager = serviceMultiFactorLookupManager
       determineIfTwoFactor.userMultiFactorLookupManager = userMultiFactorLookupManager

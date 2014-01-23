@@ -24,7 +24,7 @@ class GenerateDuoCredentialsActionTests extends Specification {
   def sfa_tgt = Mock(TicketGrantingTicket)
   def requestContext = Mock(RequestContext)
   def ticketRegistry = Mock(TicketRegistry)
-  
+
   /**
   * configure mocked objects
   **/
@@ -41,9 +41,6 @@ class GenerateDuoCredentialsActionTests extends Specification {
     sfa_authentication.principal >> sfa_principal
     sfa_principal.id  >> "testUser"
     sfa_authentication.attributes >> [(CasConstants.LOA_ATTRIBUTE): CasConstants.LOA_SF]
-
-    
-
   }
 
   def "Create a new DuoCredential during intial login"(){
@@ -68,11 +65,33 @@ class GenerateDuoCredentialsActionTests extends Specification {
       resultCredential.getPrincipal().getId() == "testUser"
   }
 
-  def "Create a new DuoCredential after initial login"(){
+  def "Create a new DuoCredential after initial login with a valid CAS session"(){
     given:
       //Configure the mocked web request
       requestContext.getFlowScope() >> new LocalAttributeMap([ticketGrantingTicketId: 'test-tgt-sfa'])
       requestContext.getRequestScope() >> new LocalAttributeMap([:])
+
+      def action = new GenerateDuoCredentialsAction()
+      action.ticketRegistry = ticketRegistry
+    when:
+      def result = action.createDuoCredentials(requestContext)
+      def resultCredential = requestContext.flowScope.duoCredentials
+
+    then:
+      result == "created"
+      resultCredential instanceof DuoCredentials
+      resultCredential.getPrincipal().getId() == "testUser"
+  }
+
+  def "Create a new DuoCredential after CAS session has timed-out and user reauthenticated"(){
+    given:
+
+      def credentials = new UsernamePasswordCredentials()
+      credentials.username = "testUser"
+
+      //Configure the mocked web request
+      requestContext.getFlowScope() >> new LocalAttributeMap([credentials: credentials, ticketGrantingTicketId: 'test-tgt-sfa-old'])
+      requestContext.getRequestScope() >> new LocalAttributeMap([ticketGrantingTicketId: 'test-tgt-sfa'])
 
       def action = new GenerateDuoCredentialsAction()
       action.ticketRegistry = ticketRegistry
@@ -123,5 +142,4 @@ class GenerateDuoCredentialsActionTests extends Specification {
     then:
       result == "error"
   }
-   
 }

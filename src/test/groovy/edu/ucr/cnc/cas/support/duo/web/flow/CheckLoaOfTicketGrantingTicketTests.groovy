@@ -48,7 +48,7 @@ class CheckLoaOfTicketGrantingTicketTests extends Specification {
     mfa_authentication.principal >> mfa_principal
     mfa_principal.id  >> "testUser2"
     mfa_authentication.attributes >> [(CasConstants.LOA_ATTRIBUTE): CasConstants.LOA_TF]
-    
+
     //Service URL the user is accessing
     webApplicationService.id >> "http://example.com/service"
 
