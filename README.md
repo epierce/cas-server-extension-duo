@@ -41,7 +41,7 @@ Add the following block to the `pom.xml` in your CAS overlay
 <dependency>
   <groupId>edu.usf.cims</groupId>
   <artifactId>cas-server-extension-duo</artifactId>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
 </dependency>
 ```
 
