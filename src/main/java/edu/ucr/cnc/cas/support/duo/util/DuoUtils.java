@@ -32,7 +32,7 @@ public class DuoUtils {
 
         // Use the DuoWeb API to get a Duo request
         String signedRequest = DuoWeb.signRequest(duoConfiguration.getIntegrationKey(),
-                duoConfiguration.getSecretKey(), duoConfiguration.getApplicationKey(), username);
+                duoConfiguration.getSecretKey(), duoConfiguration.getApplicationKey(), username.trim());
 
         LOGGER.debug("Duo returned signed request {}", signedRequest);
 

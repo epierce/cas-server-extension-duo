@@ -140,7 +140,7 @@
   <action-state id="determineIfTwoFactor">
     <evaluate expression="determineIfTwoFactorAction" />
     <transition on="multiFactorNeeded" to="startDuoSecondFactorFlow" />
-    <transition on="noMultiFactorNeeded" to="passwordPolicyCheck" />
+    <transition on="noMultiFactorNeeded" to="warn" />
     <transition on="error" to="generateLoginTicket" />
   </action-state>
 
